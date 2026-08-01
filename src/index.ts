@@ -1,0 +1,85 @@
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+import { Fog, PCFSoftShadowMap, VisibilityState, World } from '@iwsdk/core';
+import projectOptions from 'virtual:iwsdk-project';
+import { CameraFlightSystem } from './systems/camera-flight.js';
+import { DayNightSystem } from './systems/day-night.js';
+import { FirePitSystem } from './systems/firepit.js';
+import { MonumentSystem } from './systems/monument.js';
+import { StageLightSystem } from './systems/stage-lights.js';
+import { WaterSystem } from './systems/water.js';
+
+World.create(
+  document.getElementById('scene-container') as HTMLDivElement,
+  projectOptions,
+).then((world) => {
+  // IWSDK configures each light's shadow properties but leaves the renderer's
+  // shadow map off, and there is no project-config switch for it. Only the sun
+  // casts, so this is a single extra pass — drop it if device frame time suffers.
+  world.renderer.shadowMap.enabled = true;
+  world.renderer.shadowMap.type = PCFSoftShadowMap;
+
+  // Aerial perspective, keyed to the sky's horizon band so the ground disc
+  // dissolves into it rather than ending in a hard rim.
+  world.scene.fog = new Fog('#bcd0e4', 140, 2200);
+
+  world.registerSystem(CameraFlightSystem);
+  world.registerSystem(FirePitSystem);
+  world.registerSystem(StageLightSystem);
+  world.registerSystem(MonumentSystem);
+  world.registerSystem(WaterSystem);
+  world.registerSystem(DayNightSystem);
+
+  bindLanding(world);
+});
+
+/**
+ * Wires the HTML landing page to the runtime.
+ *
+ * The XR entry point is a DOM button rather than an in-world panel: a spatial
+ * panel floating in front of an empty venue is the first thing a visitor sees,
+ * and it reads as debug UI. The camera flight plays behind the overlay until
+ * the visitor picks a way in.
+ */
+function bindLanding(world: Awaited<ReturnType<typeof World.create>>): void {
+  const landing = document.getElementById('landing');
+  const enterButton = document.getElementById('enter-xr');
+  const exploreButton = document.getElementById('explore');
+  const note = document.getElementById('xr-note');
+  const hud = document.getElementById('hud');
+
+  if (world.xrEnabled) {
+    enterButton?.removeAttribute('hidden');
+  } else {
+    note?.removeAttribute('hidden');
+  }
+
+  const dismiss = (showHud: boolean): void => {
+    landing?.classList.add('dismissed');
+    // The flight system listens for this and hands the rig back.
+    window.dispatchEvent(new Event('connect-site:explore'));
+    if (showHud) {
+      hud?.removeAttribute('hidden');
+      window.setTimeout(() => hud?.setAttribute('hidden', ''), 6000);
+    }
+  };
+
+  enterButton?.addEventListener('click', () => {
+    dismiss(false);
+    void world.launchXR();
+  });
+  exploreButton?.addEventListener('click', () => dismiss(true));
+
+  // Entering XR by any other route should also clear the overlay.
+  world.visibilityState.subscribe((state) => {
+    if (state !== VisibilityState.NonImmersive) {
+      landing?.classList.add('dismissed');
+      hud?.setAttribute('hidden', '');
+    }
+  });
+}

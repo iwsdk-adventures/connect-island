@@ -1,0 +1,187 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <link rel="icon" href="data:," />
+    <title>Meta Connect 2026 — The Grounds</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --ink: #0a1f4d;
+        --accent: #4d8cff;
+      }
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        overflow: hidden;
+        font-family:
+          'DM Sans',
+          system-ui,
+          -apple-system,
+          'Segoe UI',
+          sans-serif;
+      }
+      #scene-container {
+        position: fixed;
+        inset: 0;
+      }
+
+      /* Landing overlay. Sits over the camera flight; the flight keeps
+         running behind it until the visitor chooses a way in. */
+      #landing {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        padding: 0 clamp(24px, 6vw, 96px) clamp(36px, 8vh, 90px);
+        box-sizing: border-box;
+        pointer-events: none;
+        background: linear-gradient(
+          to top,
+          rgba(6, 18, 46, 0.82) 0%,
+          rgba(6, 18, 46, 0.45) 28%,
+          rgba(6, 18, 46, 0) 58%
+        );
+        transition: opacity 700ms ease;
+      }
+      #landing.dismissed {
+        opacity: 0;
+        pointer-events: none;
+      }
+      #landing > * {
+        pointer-events: auto;
+      }
+
+      .eyebrow {
+        font-size: clamp(12px, 1.1vw, 15px);
+        font-weight: 700;
+        letter-spacing: 3px;
+        color: #8fb6ff;
+        margin: 0 0 14px;
+      }
+      h1 {
+        font-size: clamp(38px, 6.4vw, 88px);
+        line-height: 0.98;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        color: #fff;
+        margin: 0 0 18px;
+        max-width: 14ch;
+        text-shadow: 0 2px 30px rgba(0, 0, 0, 0.4);
+      }
+      .lede {
+        font-size: clamp(15px, 1.5vw, 20px);
+        line-height: 1.5;
+        color: #cbdcf6;
+        margin: 0 0 32px;
+        max-width: 46ch;
+      }
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 14px;
+        align-items: center;
+      }
+      button {
+        font: inherit;
+        font-weight: 700;
+        font-size: clamp(15px, 1.3vw, 17px);
+        border-radius: 999px;
+        padding: 15px 30px;
+        border: 2px solid transparent;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        transition:
+          transform 140ms ease,
+          background 160ms ease,
+          border-color 160ms ease;
+      }
+      button:hover {
+        transform: translateY(-2px);
+      }
+      button:focus-visible {
+        outline: 3px solid var(--accent);
+        outline-offset: 3px;
+      }
+      #enter-xr {
+        background: #fff;
+        color: var(--ink);
+      }
+      #enter-xr:hover {
+        background: #e8f0ff;
+      }
+      #explore {
+        background: rgba(255, 255, 255, 0.09);
+        color: #fff;
+        border-color: rgba(255, 255, 255, 0.42);
+      }
+      #explore:hover {
+        background: rgba(255, 255, 255, 0.18);
+      }
+      #xr-note {
+        font-size: 14px;
+        color: #9db4d8;
+        margin: 16px 0 0;
+      }
+      [hidden] {
+        display: none !important;
+      }
+
+      /* Shown once the visitor takes manual control. */
+      #hud {
+        position: fixed;
+        left: 50%;
+        bottom: 26px;
+        transform: translateX(-50%);
+        padding: 10px 20px;
+        border-radius: 999px;
+        background: rgba(8, 20, 48, 0.66);
+        backdrop-filter: blur(10px);
+        color: #d8e6fb;
+        font-size: 14px;
+        letter-spacing: 0.2px;
+        transition: opacity 500ms ease;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="scene-container"></div>
+
+    <div id="landing">
+      <p class="eyebrow">META CONNECT 2026 &middot; SEPTEMBER 23&ndash;24</p>
+      <h1>Walk the grounds</h1>
+      <p class="lede">
+        A pavilion, a firepit and a session stage, built for the open web with
+        the Immersive Web SDK. Put on a headset, or explore right here in the
+        browser.
+      </p>
+      <div class="actions">
+        <button id="enter-xr" hidden>
+          <svg width="22" height="14" viewBox="0 0 22 14" aria-hidden="true">
+            <path
+              fill="currentColor"
+              d="M3 0h16a3 3 0 0 1 3 3v6a3 3 0 0 1-3 3h-4.2a2 2 0 0 1-1.7-1l-1.3-2a1 1 0 0 0-1.6 0l-1.3 2a2 2 0 0 1-1.7 1H3a3 3 0 0 1-3-3V3a3 3 0 0 1 3-3Z"
+            />
+          </svg>
+          Enter in VR
+        </button>
+        <button id="explore">Explore in browser</button>
+      </div>
+      <p id="xr-note" hidden>
+        No headset detected &mdash; explore in the browser instead.
+      </p>
+    </div>
+
+    <div id="hud" hidden>Drag to look &middot; W A S D to move</div>
+
+    <script type="module" src="/src/index.ts"></script>
+  </body>
+</html>

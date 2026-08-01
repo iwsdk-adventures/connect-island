@@ -1,0 +1,164 @@
+<!--
+  Pavilion info panel - Immersive Web SDK.
+  Same 420-unit card system as connect-info.uikitml.
+-->
+<style>
+  @font-face {
+    font-family: "DM Sans";
+    src: url("https://fonts.gstatic.com/s/dmsans/v17/rP2tp2ywxg089UriI5-g4vlH9VoD8CmcqZG40F9JadbnoEwAopxhTg.ttf");
+    font-weight: 400;
+  }
+  @font-face {
+    font-family: "DM Sans";
+    src: url("https://fonts.gstatic.com/s/dmsans/v17/rP2tp2ywxg089UriI5-g4vlH9VoD8CmcqZG40F9JadbnoEwAkJxhTg.ttf");
+    font-weight: 500;
+  }
+  @font-face {
+    font-family: "DM Sans";
+    src: url("https://fonts.gstatic.com/s/dmsans/v17/rP2tp2ywxg089UriI5-g4vlH9VoD8CmcqZG40F9JadbnoEwARZthTg.ttf");
+    font-weight: 700;
+  }
+
+  .card {
+    flex-direction: column;
+    font-family: "DM Sans";
+    width: 420px;
+    background-color: #0a1f4d;
+    border-radius: 24px;
+    border-width: 2px;
+    border-color: #2c53ac;
+    padding-top: 28px;
+    padding-bottom: 28px;
+    padding-left: 30px;
+    padding-right: 30px;
+  }
+  .eyebrow {
+    font-size: 14px;
+    font-weight: 700;
+    color: #a78bfa;
+    letter-spacing: 2px;
+  }
+  .title {
+    font-size: 38px;
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1.08;
+    margin-top: 10px;
+  }
+  .body {
+    font-size: 16px;
+    font-weight: 400;
+    color: #c3d5f4;
+    line-height: 1.45;
+    margin-top: 16px;
+    width: 360px;
+  }
+  .row {
+    flex-direction: row;
+    align-items: flex-start;
+    margin-top: 15px;
+  }
+  .bullet {
+    width: 10px;
+    height: 10px;
+    border-radius: 5px;
+    background-color: #a78bfa;
+    margin-top: 6px;
+    margin-right: 13px;
+  }
+  .row-body {
+    flex-direction: column;
+    width: 335px;
+  }
+  .row-head {
+    font-size: 16px;
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1.3;
+  }
+  .row-text {
+    font-size: 15px;
+    font-weight: 400;
+    color: #b8cbec;
+    line-height: 1.4;
+    margin-top: 3px;
+  }
+  .command {
+    background-color: #101b3d;
+    border-radius: 12px;
+    border-width: 1px;
+    border-color: #3b5fbb;
+    padding-top: 12px;
+    padding-bottom: 12px;
+    padding-left: 16px;
+    padding-right: 16px;
+    margin-top: 22px;
+  }
+  .command-text {
+    font-size: 16px;
+    font-weight: 700;
+    color: #8ff0c4;
+  }
+</style>
+<div class="card">
+  <div class="eyebrow">IMMERSIVE WEB SDK</div>
+  <div class="title">WebXR made simple</div>
+  <div class="body">
+    Meta's open-source framework for immersive experiences on the web. Three.js
+    for rendering, a high-performance ECS for everything else.
+  </div>
+
+  <div class="row">
+    <div class="bullet"></div>
+    <div class="row-body">
+      <div class="row-head">Interaction</div>
+      <div class="row-text">
+        Controller and hand tracking. One-hand, two-hand and distance grab.
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="bullet"></div>
+    <div class="row-body">
+      <div class="row-head">Movement</div>
+      <div class="row-text">
+        Teleport, slide and snap turn, with comfort options built in.
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="bullet"></div>
+    <div class="row-body">
+      <div class="row-head">Simulation</div>
+      <div class="row-text">
+        Havok physics in web workers, spatial audio, AR scene understanding.
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="bullet"></div>
+    <div class="row-body">
+      <div class="row-head">Spatial UI</div>
+      <div class="row-text">
+        HTML-shaped panel authoring. This sign is one of them.
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="bullet"></div>
+    <div class="row-body">
+      <div class="row-head">Built with AI</div>
+      <div class="row-text">
+        MCP tools let coding agents screenshot, drive input and inspect the ECS.
+      </div>
+    </div>
+  </div>
+
+  <div class="command">
+    <div class="command-text">npm create @iwsdk@latest</div>
+  </div>
+</div>

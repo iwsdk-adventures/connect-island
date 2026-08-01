@@ -1,0 +1,1891 @@
+{
+  "authoring": {
+    "views": [
+      {
+        "fov": 62,
+        "id": "hero",
+        "position": [
+          0,
+          1.7,
+          22.2
+        ],
+        "projection": "perspective",
+        "role": "hero",
+        "target": [
+          0,
+          1.5,
+          17
+        ]
+      },
+      {
+        "height": 52,
+        "id": "site-top",
+        "position": [
+          0,
+          40,
+          0.01
+        ],
+        "projection": "orthographic",
+        "role": "diagnostic",
+        "target": [
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "fov": 60,
+        "id": "pavilion-view",
+        "position": [
+          0,
+          1.7,
+          8.5
+        ],
+        "projection": "perspective",
+        "role": "diagnostic",
+        "target": [
+          0,
+          2,
+          0
+        ]
+      },
+      {
+        "fov": 58,
+        "id": "firepit-view",
+        "position": [
+          -6.2,
+          2.3,
+          -1.2
+        ],
+        "projection": "perspective",
+        "role": "diagnostic",
+        "target": [
+          -12.4,
+          1.1,
+          -7.4
+        ]
+      },
+      {
+        "fov": 54,
+        "id": "stage-view",
+        "position": [
+          4.4,
+          6.8,
+          -2.2
+        ],
+        "projection": "perspective",
+        "role": "diagnostic",
+        "target": [
+          12.6,
+          2.4,
+          -7.4
+        ]
+      },
+      {
+        "fov": 46,
+        "id": "site-quarter",
+        "position": [
+          22,
+          16,
+          26
+        ],
+        "projection": "perspective",
+        "role": "diagnostic",
+        "target": [
+          0,
+          2,
+          0
+        ]
+      },
+      {
+        "fov": 62,
+        "id": "approach",
+        "position": [
+          0,
+          1.7,
+          14.5
+        ],
+        "projection": "perspective",
+        "role": "diagnostic",
+        "target": [
+          0,
+          2.6,
+          6
+        ]
+      },
+      {
+        "fov": 60,
+        "id": "monument-close",
+        "position": [
+          2.4,
+          1.7,
+          18.4
+        ],
+        "projection": "perspective",
+        "role": "diagnostic",
+        "target": [
+          0,
+          3.6,
+          13.8
+        ]
+      },
+      {
+        "fov": 64,
+        "id": "boardwalk-firepit",
+        "position": [
+          -4.6,
+          1.7,
+          -2.4
+        ],
+        "projection": "perspective",
+        "role": "diagnostic",
+        "target": [
+          -11.4,
+          1.5,
+          -6.4
+        ]
+      },
+      {
+        "fov": 62,
+        "id": "stage-audience",
+        "position": [
+          6.5,
+          1.35,
+          -3.6
+        ],
+        "projection": "perspective",
+        "role": "diagnostic",
+        "target": [
+          12.2,
+          2.4,
+          -7
+        ]
+      },
+      {
+        "fov": 68,
+        "id": "pavilion-under",
+        "position": [
+          3.4,
+          1.7,
+          3.4
+        ],
+        "projection": "perspective",
+        "role": "diagnostic",
+        "target": [
+          -1.2,
+          1.9,
+          -1.2
+        ]
+      },
+      {
+        "fov": 62,
+        "id": "firepit-seated",
+        "position": [
+          -9.4,
+          1.25,
+          -9
+        ],
+        "projection": "perspective",
+        "role": "diagnostic",
+        "target": [
+          -12,
+          1.3,
+          -6.9
+        ]
+      },
+      {
+        "fov": 38,
+        "id": "mark-front",
+        "position": [
+          0,
+          1.5,
+          21.4
+        ],
+        "projection": "perspective",
+        "role": "diagnostic",
+        "target": [
+          0,
+          1.42,
+          18.5
+        ]
+      }
+    ]
+  },
+  "components": {
+    "com.iwsdk.components.DomeGradient": {
+      "equator": [
+        0.74,
+        0.83,
+        0.92,
+        1
+      ],
+      "ground": [
+        0.42,
+        0.46,
+        0.42,
+        1
+      ],
+      "intensity": 1,
+      "sky": [
+        0.09,
+        0.27,
+        0.62,
+        1
+      ]
+    },
+    "com.iwsdk.components.IBLGradient": {
+      "equator": [
+        0.74,
+        0.83,
+        0.92,
+        1
+      ],
+      "ground": [
+        0.34,
+        0.32,
+        0.28,
+        1
+      ],
+      "intensity": 1,
+      "sky": [
+        0.09,
+        0.27,
+        0.62,
+        1
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "components": {
+        "LocomotionEnvironment": {}
+      },
+      "content": {
+        "asset": "site-ground",
+        "receiveShadow": true,
+        "type": "asset"
+      },
+      "framingRole": "support",
+      "id": "ground",
+      "name": "Site ground",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "content": {
+        "asset": "water",
+        "type": "asset"
+      },
+      "framingRole": "support",
+      "id": "water",
+      "name": "Sea",
+      "transform": {
+        "position": [
+          0,
+          -1.15,
+          0
+        ]
+      }
+    },
+    {
+      "content": {
+        "asset": "skyline",
+        "type": "asset"
+      },
+      "framingRole": "support",
+      "id": "skyline",
+      "name": "Distant skyline",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "components": {
+        "com.iwsdk.components.DirectionalLight": {
+          "castShadow": true,
+          "color": [
+            1,
+            0.96,
+            0.88,
+            1
+          ],
+          "intensity": 3.1,
+          "shadowBias": -0.0006,
+          "shadowCameraFar": 130,
+          "shadowCameraNear": 5,
+          "shadowCameraSize": 46,
+          "shadowMapSize": "2048",
+          "shadowNormalBias": 0.03
+        }
+      },
+      "id": "sun",
+      "name": "Dusk sun",
+      "transform": {
+        "position": [
+          -14,
+          22,
+          16
+        ],
+        "rotationDeg": [
+          -54,
+          -27.3,
+          0
+        ]
+      }
+    },
+    {
+      "components": {
+        "com.iwsdk.components.HemisphereLight": {
+          "groundColor": [
+            0.34,
+            0.42,
+            0.2,
+            1
+          ],
+          "intensity": 0.45,
+          "skyColor": [
+            0.35,
+            0.55,
+            0.95,
+            1
+          ]
+        }
+      },
+      "id": "sky-fill",
+      "name": "Sky fill"
+    },
+    {
+      "components": {
+        "LocomotionEnvironment": {}
+      },
+      "content": {
+        "asset": "pavilion",
+        "castShadow": true,
+        "receiveShadow": true,
+        "type": "asset"
+      },
+      "id": "pavilion",
+      "name": "Pavilion",
+      "transform": {
+        "position": [
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "components": {
+        "RayInteractable": {}
+      },
+      "content": {
+        "asset": "connect-panel",
+        "type": "asset"
+      },
+      "id": "connect-panel",
+      "name": "Meta Connect info panel",
+      "transform": {
+        "position": [
+          0,
+          1.65,
+          3.28
+        ],
+        "rotationDeg": [
+          0,
+          0,
+          0
+        ],
+        "scale": 0.4
+      }
+    },
+    {
+      "components": {
+        "RayInteractable": {}
+      },
+      "content": {
+        "asset": "iwsdk-panel",
+        "type": "asset"
+      },
+      "id": "iwsdk-panel",
+      "name": "IWSDK info panel",
+      "transform": {
+        "position": [
+          2.841,
+          1.65,
+          -1.64
+        ],
+        "rotationDeg": [
+          0,
+          120,
+          0
+        ],
+        "scale": 0.4
+      }
+    },
+    {
+      "components": {
+        "RayInteractable": {}
+      },
+      "content": {
+        "asset": "visit-panel",
+        "type": "asset"
+      },
+      "id": "visit-panel",
+      "name": "Site guide panel",
+      "transform": {
+        "position": [
+          -2.841,
+          1.65,
+          -1.64
+        ],
+        "rotationDeg": [
+          0,
+          240,
+          0
+        ],
+        "scale": 0.4
+      }
+    },
+    {
+      "components": {
+        "com.iwsdk.components.PointLight": {
+          "color": [
+            1,
+            0.93,
+            0.82,
+            1
+          ],
+          "decay": 2,
+          "distance": 16,
+          "intensity": 18
+        }
+      },
+      "id": "pavilion-light-a",
+      "name": "Pavilion light A",
+      "transform": {
+        "position": [
+          3.118,
+          3.5,
+          1.8
+        ]
+      }
+    },
+    {
+      "components": {
+        "com.iwsdk.components.PointLight": {
+          "color": [
+            1,
+            0.93,
+            0.82,
+            1
+          ],
+          "decay": 2,
+          "distance": 16,
+          "intensity": 18
+        }
+      },
+      "id": "pavilion-light-b",
+      "name": "Pavilion light B",
+      "transform": {
+        "position": [
+          0,
+          3.5,
+          -3.6
+        ]
+      }
+    },
+    {
+      "components": {
+        "com.iwsdk.components.PointLight": {
+          "color": [
+            1,
+            0.93,
+            0.82,
+            1
+          ],
+          "decay": 2,
+          "distance": 16,
+          "intensity": 18
+        }
+      },
+      "id": "pavilion-light-c",
+      "name": "Pavilion light C",
+      "transform": {
+        "position": [
+          -3.118,
+          3.5,
+          1.8
+        ]
+      }
+    },
+    {
+      "components": {
+        "LocomotionEnvironment": {},
+        "Monument": {}
+      },
+      "content": {
+        "asset": "monument",
+        "castShadow": true,
+        "receiveShadow": true,
+        "type": "asset"
+      },
+      "id": "monument",
+      "name": "Infinity monument",
+      "transform": {
+        "position": [
+          0,
+          0,
+          18.5
+        ],
+        "rotationDeg": [
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "components": {
+        "com.iwsdk.components.SpotLight": {
+          "angleDeg": 42,
+          "color": [
+            0.75,
+            0.85,
+            1,
+            1
+          ],
+          "decay": 2,
+          "distance": 6,
+          "intensity": 7,
+          "penumbra": 0.55
+        }
+      },
+      "id": "monument-spot-right",
+      "name": "Monument uplight right",
+      "transform": {
+        "position": [
+          1.4,
+          0.25,
+          19.6
+        ],
+        "rotationDeg": [
+          46.2,
+          41.3,
+          0
+        ]
+      }
+    },
+    {
+      "components": {
+        "com.iwsdk.components.SpotLight": {
+          "angleDeg": 42,
+          "color": [
+            0.75,
+            0.85,
+            1,
+            1
+          ],
+          "decay": 2,
+          "distance": 6,
+          "intensity": 7,
+          "penumbra": 0.55
+        }
+      },
+      "id": "monument-spot-left",
+      "name": "Monument uplight left",
+      "transform": {
+        "position": [
+          -1.4,
+          0.25,
+          19.6
+        ],
+        "rotationDeg": [
+          46.2,
+          -41.3,
+          0
+        ]
+      }
+    },
+    {
+      "components": {
+        "LocomotionEnvironment": {}
+      },
+      "content": {
+        "asset": "entrance-gate",
+        "castShadow": true,
+        "type": "asset"
+      },
+      "id": "entrance-gate",
+      "name": "Entrance gate",
+      "transform": {
+        "position": [
+          0,
+          0,
+          25.2
+        ],
+        "rotationDeg": [
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "components": {
+        "LocomotionEnvironment": {}
+      },
+      "content": {
+        "asset": "sign-post",
+        "castShadow": true,
+        "type": "asset"
+      },
+      "id": "entrance-sign-post",
+      "name": "Entrance sign post",
+      "transform": {
+        "position": [
+          -5.5,
+          0,
+          22.7
+        ],
+        "rotationDeg": [
+          0,
+          28,
+          0
+        ],
+        "scale": 1
+      }
+    },
+    {
+      "components": {
+        "RayInteractable": {}
+      },
+      "content": {
+        "asset": "entrance-sign",
+        "type": "asset"
+      },
+      "id": "entrance-sign",
+      "name": "Entrance sign",
+      "transform": {
+        "position": [
+          -5.5,
+          2.3,
+          22.6
+        ],
+        "rotationDeg": [
+          0,
+          28,
+          0
+        ],
+        "scale": 0.45
+      }
+    },
+    {
+      "content": {
+        "asset": "planter-monstera",
+        "type": "asset"
+      },
+      "id": "entrance-planter-left",
+      "name": "Entrance planter left",
+      "transform": {
+        "position": [
+          -6.4,
+          0,
+          25
+        ]
+      }
+    },
+    {
+      "content": {
+        "asset": "planter-monstera",
+        "type": "asset"
+      },
+      "id": "entrance-planter-right",
+      "name": "Entrance planter right",
+      "transform": {
+        "position": [
+          6.4,
+          0,
+          25
+        ]
+      }
+    },
+    {
+      "content": {
+        "asset": "planter-palm",
+        "type": "asset"
+      },
+      "id": "entrance-palm-left",
+      "name": "Entrance palm left",
+      "transform": {
+        "position": [
+          -6.6,
+          0,
+          15.4
+        ]
+      }
+    },
+    {
+      "content": {
+        "asset": "planter-palm",
+        "type": "asset"
+      },
+      "id": "entrance-palm-right",
+      "name": "Entrance palm right",
+      "transform": {
+        "position": [
+          6.6,
+          0,
+          15.4
+        ]
+      }
+    },
+    {
+      "children": [
+        {
+          "components": {
+            "FirePit": {
+              "baseIntensity": 115,
+              "flickerAmount": 0.2,
+              "flickerSpeed": 4.4
+            },
+            "com.iwsdk.components.PointLight": {
+              "color": [
+                1,
+                0.55,
+                0.22,
+                1
+              ],
+              "decay": 2,
+              "distance": 24,
+              "intensity": 115
+            }
+          },
+          "id": "firepit-light",
+          "name": "Firelight",
+          "transform": {
+            "position": [
+              0,
+              1.7,
+              0
+            ]
+          }
+        }
+      ],
+      "components": {
+        "LocomotionEnvironment": {}
+      },
+      "content": {
+        "asset": "firepit",
+        "castShadow": true,
+        "receiveShadow": true,
+        "type": "asset"
+      },
+      "id": "firepit",
+      "name": "Firepit",
+      "transform": {
+        "position": [
+          -12,
+          0,
+          -6.928
+        ]
+      }
+    },
+    {
+      "content": {
+        "asset": "seat-pod",
+        "type": "asset"
+      },
+      "id": "firepit-seat-0",
+      "transform": {
+        "position": [
+          -9.095,
+          0.22,
+          -7.44
+        ],
+        "rotationDeg": [
+          0,
+          100,
+          0
+        ]
+      }
+    },
+    {
+      "content": {
+        "asset": "seat-pod",
+        "type": "asset"
+      },
+      "id": "firepit-seat-1",
+      "transform": {
+        "position": [
+          -10.104,
+          0.22,
+          -9.188
+        ],
+        "rotationDeg": [
+          0,
+          140,
+          0
+        ]
+      }
+    },
+    {
+      "content": {
+        "asset": "seat-pod",
+        "type": "asset"
+      },
+      "id": "firepit-seat-2",
+      "transform": {
+        "position": [
+          -12,
+          0.22,
+          -9.878
+        ],
+        "rotationDeg": [
+          0,
+          180,
+          0
+        ]
+      }
+    },
+    {
+      "content": {
+        "asset": "seat-pod",
+        "type": "asset"
+      },
+      "id": "firepit-seat-3",
+      "transform": {
+        "position": [
+          -13.896,
+          0.22,
+          -9.188
+        ],
+        "rotationDeg": [
+          0,
+          220,
+          0
+        ]
+      }
+    },
+    {
+      "content": {
+        "asset": "seat-pod",
+        "type": "asset"
+      },
+      "id": "firepit-seat-4",
+      "transform": {
+        "position": [
+          -14.905,
+          0.22,
+          -7.44
+        ],
+        "rotationDeg": [
+          0,
+          260,
+          0
+        ]
+      }
+    },
+    {
+      "content": {
+        "asset": "seat-pod",
+        "type": "asset"
+      },
+      "id": "firepit-seat-5",
+      "transform": {
+        "position": [
+          -14.555,
+          0.22,
+          -5.453
+        ],
+        "rotationDeg": [
+          0,
+          300,
+          0
+        ]
+      }
+    },
+    {
+      "content": {
+        "asset": "seat-pod",
+        "type": "asset"
+      },
+      "id": "firepit-seat-6",
+      "transform": {
+        "position": [
+          -13.009,
+          0.22,
+          -4.156
+        ],
+        "rotationDeg": [
+          0,
+          340,
+          0
+        ]
+      }
+    },
+    {
+      "content": {
+        "asset": "planter-monstera",
+        "type": "asset"
+      },
+      "id": "firepit-planter-0",
+      "transform": {
+        "position": [
+          -7.93,
+          0,
+          -9.278
+        ]
+      }
+    },
+    {
+      "content": {
+        "asset": "planter-palm",
+        "type": "asset"
+      },
+      "id": "firepit-planter-1",
+      "transform": {
+        "position": [
+          -13.607,
+          0,
+          -11.345
+        ]
+      }
+    },
+    {
+      "content": {
+        "asset": "planter-monstera",
+        "type": "asset"
+      },
+      "id": "firepit-planter-2",
+      "transform": {
+        "position": [
+          -16.629,
+          0,
+          -6.112
+        ]
+      }
+    },
+    {
+      "content": {
+        "asset": "planter-palm",
+        "type": "asset"
+      },
+      "id": "firepit-planter-3",
+      "transform": {
+        "position": [
+          -10.393,
+          0,
+          -2.511
+        ]
+      }
+    },
+    {
+      "components": {
+        "LocomotionEnvironment": {}
+      },
+      "content": {
+        "asset": "stage",
+        "castShadow": true,
+        "receiveShadow": true,
+        "type": "asset"
+      },
+      "id": "stage",
+      "name": "Session stage",
+      "transform": {
+        "position": [
+          12,
+          0,
+          -6.928
+        ],
+        "rotationDeg": [
+          0,
+          120,
+          0
+        ]
+      }
+    },
+    {
+      "components": {
+        "StageLight": {
+          "phase": 0
+        },
+        "com.iwsdk.components.SpotLight": {
+          "angleDeg": 26,
+          "color": [
+            0.85,
+            0.8,
+            1,
+            1
+          ],
+          "decay": 2,
+          "distance": 22,
+          "intensity": 60,
+          "penumbra": 0.45
+        }
+      },
+      "id": "stage-spot-a",
+      "name": "Stage spot A",
+      "transform": {
+        "position": [
+          14.499,
+          4.9,
+          -5.6
+        ],
+        "rotationDeg": [
+          -72,
+          98,
+          0
+        ]
+      }
+    },
+    {
+      "components": {
+        "StageLight": {
+          "phase": 2.1
+        },
+        "com.iwsdk.components.SpotLight": {
+          "angleDeg": 26,
+          "color": [
+            1,
+            0.95,
+            0.88,
+            1
+          ],
+          "decay": 2,
+          "distance": 22,
+          "intensity": 70,
+          "penumbra": 0.45
+        }
+      },
+      "id": "stage-spot-b",
+      "name": "Stage spot B",
+      "transform": {
+        "position": [
+          13.299,
+          4.9,
+          -7.678
+        ],
+        "rotationDeg": [
+          -72,
+          120,
+          0
+        ]
+      }
+    },
+    {
+      "components": {
+        "StageLight": {
+          "phase": 4.2
+        },
+        "com.iwsdk.components.SpotLight": {
+          "angleDeg": 26,
+          "color": [
+            0.85,
+            0.8,
+            1,
+            1
+          ],
+          "decay": 2,
+          "distance": 22,
+          "intensity": 60,
+          "penumbra": 0.45
+        }
+      },
+      "id": "stage-spot-c",
+      "name": "Stage spot C",
+      "transform": {
+        "position": [
+          12.099,
+          4.9,
+          -9.756
+        ],
+        "rotationDeg": [
+          -72,
+          142,
+          0
+        ]
+      }
+    },
+    {
+      "components": {
+        "LocomotionEnvironment": {}
+      },
+      "content": {
+        "asset": "sign-post",
+        "castShadow": true,
+        "type": "asset"
+      },
+      "id": "stage-sign-post",
+      "name": "Stage sign post",
+      "transform": {
+        "position": [
+          6.362,
+          0,
+          -8.98
+        ],
+        "rotationDeg": [
+          0,
+          300,
+          0
+        ],
+        "scale": 0.74
+      }
+    },
+    {
+      "components": {
+        "RayInteractable": {}
+      },
+      "content": {
+        "asset": "stage-sign",
+        "type": "asset"
+      },
+      "id": "stage-sign",
+      "name": "Stage schedule sign",
+      "transform": {
+        "position": [
+          6.275,
+          1.7,
+          -8.93
+        ],
+        "rotationDeg": [
+          0,
+          300,
+          0
+        ],
+        "scale": 0.4
+      }
+    },
+    {
+      "content": {
+        "asset": "bench",
+        "type": "asset"
+      },
+      "id": "stage-bench-0",
+      "transform": {
+        "position": [
+          3.464,
+          0,
+          -7.976
+        ],
+        "rotationDeg": [
+          0,
+          -97,
+          0
+        ]
+      }
+    },
+    {
+      "content": {
+        "asset": "bench",
+        "type": "asset"
+      },
+      "id": "stage-bench-1",
+      "transform": {
+        "position": [
+          3.558,
+          0,
+          -5.287
+        ],
+        "rotationDeg": [
+          0,
+          -79,
+          0
+        ]
+      }
+    },
+    {
+      "content": {
+        "asset": "bench",
+        "type": "asset"
+      },
+      "id": "stage-bench-2",
+      "transform": {
+        "position": [
+          6.358,
+          0,
+          -0.437
+        ],
+        "rotationDeg": [
+          0,
+          -41,
+          0
+        ]
+      }
+    },
+    {
+      "content": {
+        "asset": "bench",
+        "type": "asset"
+      },
+      "id": "stage-bench-3",
+      "transform": {
+        "position": [
+          8.64,
+          0,
+          0.988
+        ],
+        "rotationDeg": [
+          0,
+          -23,
+          0
+        ]
+      }
+    },
+    {
+      "content": {
+        "asset": "bench",
+        "type": "asset"
+      },
+      "id": "stage-bench-4",
+      "transform": {
+        "position": [
+          1.007,
+          0,
+          -6.544
+        ],
+        "rotationDeg": [
+          0,
+          -88,
+          0
+        ]
+      }
+    },
+    {
+      "content": {
+        "asset": "planter-palm",
+        "type": "asset"
+      },
+      "id": "stage-planter-0",
+      "transform": {
+        "position": [
+          5.046,
+          0,
+          -9.459
+        ]
+      }
+    },
+    {
+      "content": {
+        "asset": "planter-palm",
+        "type": "asset"
+      },
+      "id": "stage-planter-1",
+      "transform": {
+        "position": [
+          10.461,
+          0,
+          0.31
+        ]
+      }
+    },
+    {
+      "content": {
+        "asset": "palm-tall",
+        "castShadow": true,
+        "type": "asset"
+      },
+      "id": "palm-0",
+      "transform": {
+        "position": [
+          6.2,
+          0,
+          17.4
+        ],
+        "rotationDeg": [
+          0,
+          0,
+          0
+        ],
+        "scale": 1
+      }
+    },
+    {
+      "content": {
+        "asset": "palm-tall",
+        "castShadow": true,
+        "type": "asset"
+      },
+      "id": "palm-1",
+      "transform": {
+        "position": [
+          -7.1,
+          0,
+          16.8
+        ],
+        "rotationDeg": [
+          0,
+          47,
+          0
+        ],
+        "scale": 1.12
+      }
+    },
+    {
+      "content": {
+        "asset": "palm-tall",
+        "castShadow": true,
+        "type": "asset"
+      },
+      "id": "palm-2",
+      "transform": {
+        "position": [
+          -16.9,
+          0,
+          8.4
+        ],
+        "rotationDeg": [
+          0,
+          94,
+          0
+        ],
+        "scale": 0.92
+      }
+    },
+    {
+      "content": {
+        "asset": "palm-tall",
+        "castShadow": true,
+        "type": "asset"
+      },
+      "id": "palm-3",
+      "transform": {
+        "position": [
+          -19.8,
+          0,
+          -0.6
+        ],
+        "rotationDeg": [
+          0,
+          141,
+          0
+        ],
+        "scale": 1.08
+      }
+    },
+    {
+      "content": {
+        "asset": "palm-tall",
+        "castShadow": true,
+        "type": "asset"
+      },
+      "id": "palm-4",
+      "transform": {
+        "position": [
+          -19.2,
+          0,
+          -13.4
+        ],
+        "rotationDeg": [
+          0,
+          188,
+          0
+        ],
+        "scale": 0.86
+      }
+    },
+    {
+      "content": {
+        "asset": "palm-tall",
+        "castShadow": true,
+        "type": "asset"
+      },
+      "id": "palm-5",
+      "transform": {
+        "position": [
+          -9.6,
+          0,
+          -17.8
+        ],
+        "rotationDeg": [
+          0,
+          235,
+          0
+        ],
+        "scale": 0.95
+      }
+    },
+    {
+      "content": {
+        "asset": "palm-tall",
+        "castShadow": true,
+        "type": "asset"
+      },
+      "id": "palm-6",
+      "transform": {
+        "position": [
+          0.8,
+          0,
+          -19.4
+        ],
+        "rotationDeg": [
+          0,
+          282,
+          0
+        ],
+        "scale": 1.15
+      }
+    },
+    {
+      "content": {
+        "asset": "palm-tall",
+        "castShadow": true,
+        "type": "asset"
+      },
+      "id": "palm-7",
+      "transform": {
+        "position": [
+          10.4,
+          0,
+          -18.2
+        ],
+        "rotationDeg": [
+          0,
+          329,
+          0
+        ],
+        "scale": 0.9
+      }
+    },
+    {
+      "content": {
+        "asset": "palm-tall",
+        "castShadow": true,
+        "type": "asset"
+      },
+      "id": "palm-8",
+      "transform": {
+        "position": [
+          19.4,
+          0,
+          -9.8
+        ],
+        "rotationDeg": [
+          0,
+          16,
+          0
+        ],
+        "scale": 1.05
+      }
+    },
+    {
+      "content": {
+        "asset": "palm-tall",
+        "castShadow": true,
+        "type": "asset"
+      },
+      "id": "palm-9",
+      "transform": {
+        "position": [
+          19.6,
+          0,
+          2.4
+        ],
+        "rotationDeg": [
+          0,
+          63,
+          0
+        ],
+        "scale": 0.83
+      }
+    },
+    {
+      "content": {
+        "asset": "palm-tall",
+        "castShadow": true,
+        "type": "asset"
+      },
+      "id": "palm-10",
+      "transform": {
+        "position": [
+          14.8,
+          0,
+          12.6
+        ],
+        "rotationDeg": [
+          0,
+          110,
+          0
+        ],
+        "scale": 1.1
+      }
+    },
+    {
+      "content": {
+        "asset": "palm-tall",
+        "castShadow": true,
+        "type": "asset"
+      },
+      "id": "palm-11",
+      "transform": {
+        "position": [
+          -13.4,
+          0,
+          13.8
+        ],
+        "rotationDeg": [
+          0,
+          157,
+          0
+        ],
+        "scale": 0.97
+      }
+    },
+    {
+      "content": {
+        "asset": "stage-screen",
+        "type": "asset"
+      },
+      "id": "stage-screen",
+      "name": "Stage screen slide",
+      "transform": {
+        "position": [
+          15.811,
+          2.7,
+          -9.128
+        ],
+        "rotationDeg": [
+          0,
+          300,
+          0
+        ],
+        "scale": 0.5
+      }
+    },
+    {
+      "components": {
+        "LocomotionEnvironment": {}
+      },
+      "content": {
+        "asset": "wayfinding-pylon",
+        "castShadow": true,
+        "type": "asset"
+      },
+      "id": "pylon-entrance",
+      "name": "Wayfinding pylon - entrance",
+      "transform": {
+        "position": [
+          2.8,
+          0,
+          8.5
+        ],
+        "rotationDeg": [
+          0,
+          18.2,
+          0
+        ]
+      }
+    },
+    {
+      "components": {
+        "LocomotionEnvironment": {}
+      },
+      "content": {
+        "asset": "wayfinding-pylon",
+        "castShadow": true,
+        "type": "asset"
+      },
+      "id": "pylon-stage",
+      "name": "Wayfinding pylon - stage",
+      "transform": {
+        "position": [
+          5.961,
+          0,
+          -6.675
+        ],
+        "rotationDeg": [
+          0,
+          138.2,
+          0
+        ]
+      }
+    },
+    {
+      "components": {
+        "LocomotionEnvironment": {}
+      },
+      "content": {
+        "asset": "wayfinding-pylon",
+        "castShadow": true,
+        "type": "asset"
+      },
+      "id": "pylon-firepit",
+      "name": "Wayfinding pylon - firepit",
+      "transform": {
+        "position": [
+          -8.761,
+          0,
+          -1.825
+        ],
+        "rotationDeg": [
+          0,
+          -101.8,
+          0
+        ]
+      }
+    },
+    {
+      "content": {
+        "distribution": {
+          "count": 3,
+          "step": [
+            0,
+            0,
+            1.7
+          ],
+          "type": "linear"
+        },
+        "prefab": "bollard",
+        "type": "pattern"
+      },
+      "id": "bollards-entrance-a",
+      "transform": {
+        "position": [
+          -1.95,
+          0,
+          7
+        ],
+        "rotationDeg": [
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "content": {
+        "distribution": {
+          "count": 3,
+          "step": [
+            0,
+            0,
+            1.7
+          ],
+          "type": "linear"
+        },
+        "prefab": "bollard",
+        "type": "pattern"
+      },
+      "id": "bollards-entrance-b",
+      "transform": {
+        "position": [
+          1.95,
+          0,
+          7
+        ],
+        "rotationDeg": [
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "content": {
+        "distribution": {
+          "count": 3,
+          "step": [
+            0,
+            0,
+            1.7
+          ],
+          "type": "linear"
+        },
+        "prefab": "bollard",
+        "type": "pattern"
+      },
+      "id": "bollards-stage-a",
+      "transform": {
+        "position": [
+          7.037,
+          0,
+          -1.811
+        ],
+        "rotationDeg": [
+          0,
+          120,
+          0
+        ]
+      }
+    },
+    {
+      "content": {
+        "distribution": {
+          "count": 3,
+          "step": [
+            0,
+            0,
+            1.7
+          ],
+          "type": "linear"
+        },
+        "prefab": "bollard",
+        "type": "pattern"
+      },
+      "id": "bollards-stage-b",
+      "transform": {
+        "position": [
+          5.087,
+          0,
+          -5.189
+        ],
+        "rotationDeg": [
+          0,
+          120,
+          0
+        ]
+      }
+    },
+    {
+      "content": {
+        "distribution": {
+          "count": 3,
+          "step": [
+            0,
+            0,
+            1.7
+          ],
+          "type": "linear"
+        },
+        "prefab": "bollard",
+        "type": "pattern"
+      },
+      "id": "bollards-firepit-a",
+      "transform": {
+        "position": [
+          -5.087,
+          0,
+          -5.189
+        ],
+        "rotationDeg": [
+          0,
+          -120,
+          0
+        ]
+      }
+    },
+    {
+      "content": {
+        "distribution": {
+          "count": 3,
+          "step": [
+            0,
+            0,
+            1.7
+          ],
+          "type": "linear"
+        },
+        "prefab": "bollard",
+        "type": "pattern"
+      },
+      "id": "bollards-firepit-b",
+      "transform": {
+        "position": [
+          -7.037,
+          0,
+          -1.811
+        ],
+        "rotationDeg": [
+          0,
+          -120,
+          0
+        ]
+      }
+    },
+    {
+      "components": {
+        "com.iwsdk.components.SpotLight": {
+          "angleDeg": 17,
+          "color": [
+            1,
+            0.95,
+            0.86,
+            1
+          ],
+          "decay": 2,
+          "distance": 14,
+          "intensity": 60,
+          "penumbra": 0.32
+        }
+      },
+      "id": "stage-key-left",
+      "name": "Stage key light",
+      "transform": {
+        "position": [
+          7.715,
+          4.3,
+          -6.568
+        ],
+        "rotationDeg": [
+          -117.4,
+          -44.1,
+          0
+        ]
+      }
+    },
+    {
+      "components": {
+        "com.iwsdk.components.SpotLight": {
+          "angleDeg": 17,
+          "color": [
+            1,
+            0.95,
+            0.86,
+            1
+          ],
+          "decay": 2,
+          "distance": 14,
+          "intensity": 60,
+          "penumbra": 0.32
+        }
+      },
+      "id": "stage-key-right",
+      "name": "Stage key light",
+      "transform": {
+        "position": [
+          9.546,
+          4.3,
+          -3.397
+        ],
+        "rotationDeg": [
+          -64.6,
+          -25.15,
+          0
+        ]
+      }
+    }
+  ],
+  "player": {
+    "transform": {
+      "position": [
+        0,
+        0,
+        22.2
+      ]
+    }
+  },
+  "resources": {
+    "prefabs": [
+      {
+        "id": "bollard",
+        "root": {
+          "content": {
+            "asset": "bollard",
+            "type": "asset"
+          },
+          "id": "bollard-root"
+        }
+      }
+    ]
+  },
+  "units": "meters",
+  "version": "iwsdk.scene.v1"
+}

@@ -1,0 +1,143 @@
+{
+  "name": "connect-site",
+  "private": true,
+  "dependencies": {
+    "@iwsdk/core": "0.5.1",
+    "three": "npm:super-three@0.181.0"
+  },
+  "assetDependencies": {
+    "warm-golden-hour-desert-sky-low-amber-sun-glow-raking-over-distant-sandstone-ruins-deep-orange-haze-at-horizon": {
+      "version": "1.0.0",
+      "alias": {
+        "public/environment/warm-golden-hour-desert-sky-low-amber-sun-glow-raking-over-distant-sandstone-ruins-deep-orange-haze-at-horizon-background.webp": "public/environment/connect-dusk-background.webp",
+        "public/environment/warm-golden-hour-desert-sky-low-amber-sun-glow-raking-over-distant-sandstone-ruins-deep-orange-haze-at-horizon.hdr": "public/environment/connect-dusk.hdr"
+      }
+    },
+    "concrete-tiles-02": {
+      "version": "1.0.0",
+      "alias": {
+        "public/concrete-tiles-02_ambientOcclusion.png": "public/texture/concrete-tiles-02_ambientOcclusion.png",
+        "public/concrete-tiles-02_baseColor.png": "public/texture/concrete-tiles-02_baseColor.png",
+        "public/concrete-tiles-02_normal.png": "public/texture/concrete-tiles-02_normal.png",
+        "public/concrete-tiles-02_roughness.png": "public/texture/concrete-tiles-02_roughness.png"
+      }
+    },
+    "metal-plates-01": "1.0.1",
+    "ground-tiles-with-sand-01": {
+      "version": "1.0.0",
+      "alias": {
+        "public/ground-tiles-with-sand-01_ambientOcclusion.png": "public/texture/ground-tiles-with-sand-01_ambientOcclusion.png",
+        "public/ground-tiles-with-sand-01_baseColor.png": "public/texture/ground-tiles-with-sand-01_baseColor.png",
+        "public/ground-tiles-with-sand-01_metallic.png": "public/texture/ground-tiles-with-sand-01_metallic.png",
+        "public/ground-tiles-with-sand-01_normal.png": "public/texture/ground-tiles-with-sand-01_normal.png",
+        "public/ground-tiles-with-sand-01_roughness.png": "public/texture/ground-tiles-with-sand-01_roughness.png"
+      }
+    },
+    "plaster-wall-02": {
+      "version": "1.0.0",
+      "alias": {
+        "public/plaster-wall-02_ambientOcclusion.png": "public/texture/plaster-wall-02_ambientOcclusion.png",
+        "public/plaster-wall-02_baseColor.png": "public/texture/plaster-wall-02_baseColor.png",
+        "public/plaster-wall-02_metallic.png": "public/texture/plaster-wall-02_metallic.png",
+        "public/plaster-wall-02_normal.png": "public/texture/plaster-wall-02_normal.png",
+        "public/plaster-wall-02_roughness.png": "public/texture/plaster-wall-02_roughness.png"
+      }
+    },
+    "desert-ground-01": {
+      "version": "1.0.0",
+      "alias": {
+        "public/desert-ground-01_ambientOcclusion.png": "public/texture/desert-ground-01_ambientOcclusion.png",
+        "public/desert-ground-01_baseColor.png": "public/texture/desert-ground-01_baseColor.png",
+        "public/desert-ground-01_metallic.png": "public/texture/desert-ground-01_metallic.png",
+        "public/desert-ground-01_normal.png": "public/texture/desert-ground-01_normal.png",
+        "public/desert-ground-01_roughness.png": "public/texture/desert-ground-01_roughness.png"
+      }
+    },
+    "deep-dusk-lilac-sky-with-heavy-charcoal-blue-storm-clouds-dramatic-but-gentle-pastel-twilight": {
+      "version": "1.0.0",
+      "alias": {
+        "public/environment/deep-dusk-lilac-sky-with-heavy-charcoal-blue-storm-clouds-dramatic-but-gentle-pastel-twilight-background.webp": "public/environment/connect-twilight-background.webp",
+        "public/environment/deep-dusk-lilac-sky-with-heavy-charcoal-blue-storm-clouds-dramatic-but-gentle-pastel-twilight.hdr": "public/environment/connect-twilight.hdr"
+      }
+    },
+    "wooden-planks-20": {
+      "version": "1.0.0",
+      "alias": {
+        "public/wooden-planks-20_ambientOcclusion.png": "public/texture/wooden-planks-20_ambientOcclusion.png",
+        "public/wooden-planks-20_baseColor.png": "public/texture/wooden-planks-20_baseColor.png",
+        "public/wooden-planks-20_normal.png": "public/texture/wooden-planks-20_normal.png",
+        "public/wooden-planks-20_roughness.png": "public/texture/wooden-planks-20_roughness.png"
+      }
+    },
+    "wood-planks-14": {
+      "version": "1.0.0",
+      "alias": {
+        "public/wood-planks-14_ambientOcclusion.png": "public/texture/wood-planks-14_ambientOcclusion.png",
+        "public/wood-planks-14_baseColor.png": "public/texture/wood-planks-14_baseColor.png",
+        "public/wood-planks-14_normal.png": "public/texture/wood-planks-14_normal.png",
+        "public/wood-planks-14_roughness.png": "public/texture/wood-planks-14_roughness.png"
+      }
+    },
+    "wood-planks-16": {
+      "version": "1.0.0",
+      "alias": {
+        "public/wood-planks-16_ambientOcclusion.png": "public/texture/wood-planks-16_ambientOcclusion.png",
+        "public/wood-planks-16_baseColor.png": "public/texture/wood-planks-16_baseColor.png",
+        "public/wood-planks-16_normal.png": "public/texture/wood-planks-16_normal.png",
+        "public/wood-planks-16_roughness.png": "public/texture/wood-planks-16_roughness.png"
+      }
+    },
+    "bright-afternoon-sun-over-wimbledon-tennis-lawns-clear-blue-sky-professional-sports-broadcast-look": {
+      "version": "1.0.0",
+      "alias": {
+        "public/environment/bright-afternoon-sun-over-wimbledon-tennis-lawns-clear-blue-sky-professional-sports-broadcast-look-background.webp": "public/environment/sky-lawn-background.webp",
+        "public/environment/bright-afternoon-sun-over-wimbledon-tennis-lawns-clear-blue-sky-professional-sports-broadcast-look.hdr": "public/environment/sky-lawn.hdr"
+      }
+    },
+    "bright-cloudless-sahara-desert-noon-sky-pale-sand-haze-along-the-horizon-vast-empty-blue-overhead": {
+      "version": "1.0.0",
+      "alias": {
+        "public/environment/bright-cloudless-sahara-desert-noon-sky-pale-sand-haze-along-the-horizon-vast-empty-blue-overhead-background.webp": "public/environment/sky-noon-background.webp",
+        "public/environment/bright-cloudless-sahara-desert-noon-sky-pale-sand-haze-along-the-horizon-vast-empty-blue-overhead.hdr": "public/environment/sky-noon.hdr"
+      }
+    },
+    "grass-02": "1.0.2",
+    "wood-planks-03": {
+      "version": "1.0.0",
+      "alias": {
+        "public/wood-planks-03_ambientOcclusion.png": "public/texture/wood-planks-03_ambientOcclusion.png",
+        "public/wood-planks-03_baseColor.png": "public/texture/wood-planks-03_baseColor.png",
+        "public/wood-planks-03_normal.png": "public/texture/wood-planks-03_normal.png",
+        "public/wood-planks-03_roughness.png": "public/texture/wood-planks-03_roughness.png"
+      }
+    }
+  },
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "iwsdk dev up --open --foreground",
+    "dev:runtime": "vite",
+    "dev:down": "iwsdk dev down",
+    "dev:status": "iwsdk dev status",
+    "reference:status": "iwsdk reference status",
+    "reference:warmup": "iwsdk reference warmup",
+    "typecheck": "tsc --noEmit",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@iwsdk/reference": "0.5.1",
+    "@iwsdk/cli": "0.5.1",
+    "@iwsdk/vite-plugin-dev": "0.5.1",
+    "@meta-quest/metavr": "^1.3.2",
+    "@types/three": "^0.181.0",
+    "typescript": "^5.5.0",
+    "vite": "^7.1.4"
+  },
+  "overrides": {
+    "sharp": "0.35.3"
+  },
+  "engines": {
+    "node": ">=20.19.0 <21.0.0-0 || >=22.12.0 <23.0.0-0 || >=24.0.0"
+  }
+}

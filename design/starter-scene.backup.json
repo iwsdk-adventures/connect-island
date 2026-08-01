@@ -1,0 +1,218 @@
+{
+  "components": {
+    "com.iwsdk.components.DomeGradient": {
+      "equator": [
+        0.6588235294117647,
+        0.7098039215686275,
+        0.792156862745098,
+        1
+      ],
+      "ground": [
+        0.807843137254902,
+        0.7764705882352941,
+        0.7450980392156863,
+        1
+      ],
+      "intensity": 1,
+      "sky": [
+        0.8588235294117647,
+        0.10196078431372549,
+        0.25098039215686274,
+        1
+      ]
+    },
+    "com.iwsdk.components.IBLGradient": {
+      "equator": [
+        0.6584,
+        0.7084,
+        0.7913,
+        1
+      ],
+      "ground": [
+        0.807,
+        0.7758,
+        0.7454,
+        1
+      ],
+      "intensity": 1,
+      "sky": [
+        0.6902,
+        0.749,
+        0.7843,
+        1
+      ]
+    }
+  },
+  "nodes": [
+    {
+      "components": {
+        "LocomotionEnvironment": {}
+      },
+      "content": {
+        "asset": "environment-desk",
+        "type": "asset"
+      },
+      "id": "environment",
+      "name": "Environment",
+      "transform": {
+        "position": [
+          0,
+          -0.106921583,
+          0
+        ],
+        "rotationDeg": [
+          0,
+          180,
+          0
+        ]
+      }
+    },
+    {
+      "components": {
+        "DistanceGrabbable": {
+          "movementMode": "MoveFromTarget"
+        },
+        "RayInteractable": {},
+        "com.iwsdk.components.SpotLight": {
+          "angleDeg": 60,
+          "castShadow": false,
+          "color": [
+            1,
+            1,
+            1,
+            1
+          ],
+          "decay": 2,
+          "distance": 0,
+          "intensity": 1,
+          "penumbra": 0,
+          "shadowBias": 0,
+          "shadowCameraFar": 100,
+          "shadowCameraNear": 0.1,
+          "shadowMapSize": "1024",
+          "shadowNormalBias": 0,
+          "shadowRadius": 1
+        }
+      },
+      "content": {
+        "asset": "plant-sansevieria",
+        "type": "asset"
+      },
+      "id": "plant-sansevieria",
+      "name": "Plant Sansevieria",
+      "transform": {
+        "position": [
+          0.0238,
+          1.0066,
+          -1.699
+        ],
+        "rotationDeg": [
+          0,
+          0,
+          0
+        ],
+        "scale": 1
+      }
+    },
+    {
+      "components": {
+        "AudioSource": {
+          "maxInstances": 3,
+          "playbackMode": "fade-restart",
+          "src": "./audio/chime.mp3"
+        },
+        "RayInteractable": {},
+        "Robot": {}
+      },
+      "content": {
+        "asset": "robot",
+        "type": "asset"
+      },
+      "id": "robot",
+      "name": "Robot",
+      "transform": {
+        "position": [
+          -1.25,
+          1,
+          -1.75
+        ],
+        "rotationDeg": [
+          0,
+          0,
+          0
+        ],
+        "scale": 0.5
+      }
+    },
+    {
+      "components": {
+        "RayInteractable": {},
+        "ScreenSpace": {
+          "height": "40%",
+          "left": "20px",
+          "top": "20px",
+          "width": "25vw"
+        },
+        "com.iwsdk.components.Follower": {
+          "behavior": "pivot-y",
+          "maxAngle": 30,
+          "needsPositionSync": true,
+          "offsetPosition": [
+            0,
+            0,
+            -2
+          ],
+          "speed": 1,
+          "target": {
+            "target": "head",
+            "type": "player-space"
+          },
+          "tolerance": 0.4
+        }
+      },
+      "content": {
+        "asset": "welcome-panel",
+        "type": "asset"
+      },
+      "id": "welcome-panel",
+      "name": "Welcome Panel",
+      "transform": {
+        "position": [
+          0,
+          1.6,
+          -2
+        ],
+        "scale": 0.4
+      }
+    },
+    {
+      "components": {},
+      "content": {
+        "asset": "webxr-banner",
+        "type": "asset"
+      },
+      "id": "webxr-banner",
+      "name": "WebXR Banner",
+      "transform": {
+        "position": [
+          0,
+          1,
+          1.8
+        ],
+        "rotationDeg": [
+          0,
+          180,
+          0
+        ],
+        "scale": [
+          1,
+          -1,
+          1
+        ]
+      }
+    }
+  ],
+  "resources": {},
+  "units": "meters",
+  "version": "iwsdk.scene.v1"
+}
