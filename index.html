@@ -150,6 +150,113 @@
         letter-spacing: 0.2px;
         transition: opacity 500ms ease;
       }
+
+      /* Covers the empty canvas until World.create() resolves. Everything that
+         moves here animates transform or opacity only, so the compositor keeps
+         it running through the main-thread blocks that module evaluation and
+         level instantiation put in the middle of the load. */
+      #loading {
+        position: fixed;
+        inset: 0;
+        z-index: 20;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
+        background: radial-gradient(
+          120% 80% at 50% 38%,
+          #14306b 0%,
+          #081a42 46%,
+          #050f2a 100%
+        );
+        transition: opacity 600ms ease;
+      }
+      #loading.done {
+        opacity: 0;
+        pointer-events: none;
+      }
+      /* Type only - no mark. The venue is a demo of the SDK, not a licensed
+         use of anyone's trademark, so the overlay names the SDK and the site
+         and leaves it there. */
+      #loading .title {
+        margin: 0;
+        font-size: clamp(20px, 2.6vw, 30px);
+        font-weight: 700;
+        letter-spacing: -0.01em;
+        color: #fff;
+        text-align: center;
+      }
+      #loading .powered {
+        margin: -10px 0 0;
+        font-size: clamp(11px, 1vw, 13px);
+        font-weight: 700;
+        letter-spacing: 2.6px;
+        text-transform: uppercase;
+        color: #8fb6ff;
+      }
+      #loading .bar {
+        width: min(240px, 44vw);
+        height: 3px;
+        margin-top: 2px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.13);
+        overflow: hidden;
+      }
+      #loading .bar span {
+        display: block;
+        width: 40%;
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          var(--accent),
+          #a8c8ff,
+          transparent
+        );
+        animation: bar-sweep 1.3s ease-in-out infinite;
+      }
+      #loading .status {
+        margin: 2px 0 0;
+        font-size: 14px;
+        color: #7f9cc8;
+      }
+      @keyframes bar-sweep {
+        0% {
+          transform: translateX(-100%);
+        }
+        100% {
+          transform: translateX(250%);
+        }
+      }
+      #loading .dots i {
+        font-style: normal;
+        opacity: 0.22;
+        animation: dot-fade 1.25s ease-in-out infinite;
+      }
+      #loading .dots i:nth-child(2) {
+        animation-delay: 0.18s;
+      }
+      #loading .dots i:nth-child(3) {
+        animation-delay: 0.36s;
+      }
+      @keyframes dot-fade {
+        0%,
+        62%,
+        100% {
+          opacity: 0.22;
+        }
+        31% {
+          opacity: 1;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        #loading .dots i,
+        #loading .bar span {
+          animation: none;
+        }
+      }
     </style>
   </head>
   <body>
@@ -181,6 +288,15 @@
     </div>
 
     <div id="hud" hidden>Drag to look &middot; W A S D to move</div>
+
+    <div id="loading">
+      <p class="title">Connect Island</p>
+      <p class="powered">Powered by IWSDK</p>
+      <div class="bar"><span></span></div>
+      <p class="status">
+        Loading<span class="dots"><i>.</i><i>.</i><i>.</i></span>
+      </p>
+    </div>
 
     <script type="module" src="/src/index.ts"></script>
   </body>

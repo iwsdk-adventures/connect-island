@@ -49,8 +49,26 @@ World.create(
   world.registerSystem(BlobShadowSystem);
   world.registerSystem(StageScreenLayerSystem);
 
+  dismissLoading();
   bindLanding(world);
 });
+
+/**
+ * Clears the loading overlay.
+ *
+ * Everything the visitor waits for is inside `World.create()` - the module
+ * graph, the PBR textures, the UIKitML panels and their font atlases, and the
+ * level instantiation - so its resolution is the honest moment to uncover the
+ * canvas. It is not the moment the site becomes visible: three.js defers every
+ * GL upload to the first draw that touches it, so the whole site's geometry,
+ * textures and programs land in one frame just after this runs, and the main
+ * thread is blocked while they do. The overlay leaves on an opacity transition
+ * for that reason - the compositor owns it, so the fade plays out over the
+ * block instead of freezing halfway through it.
+ */
+function dismissLoading(): void {
+  document.getElementById('loading')?.classList.add('done');
+}
 
 /**
  * Wires the HTML landing page to the runtime.
