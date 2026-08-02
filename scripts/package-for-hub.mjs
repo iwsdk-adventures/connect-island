@@ -5,17 +5,23 @@
  *   dist/
  *   ├── index.html / assets / stockfish / textures / ui / gltf / audio / ...
  *   └── journal/
- *       ├── session.jsonl         (copied from .claude/journal/session-{id}.jsonl)
+ *       ├── session.jsonl         (from .claude/journal/session-{id}.jsonl)
  *       ├── stats.json            (aggregated from multiple sources)
  *       └── checkpoints/<flat>    (copied from .claude/journal/checkpoints/{id}/)
  *
  * Intended to be consumed by iwsdk-adventures: one invocation → one artifact
  * that gets dropped wholesale into `public/apps/connect-island/`.
  *
+ * `--drop-turns` removes whole turns from the *published* transcript and
+ * renumbers what is left from 1. The journal under `.claude/journal/` stays
+ * the complete record; only the artifact is edited, and every stat is
+ * recomputed from what survives.
+ *
  * Usage:
  *   pnpm package:hub
  *   node scripts/package-for-hub.mjs [--session-id <uuid>] [--base /path/] \
- *                                    [--home-dir /Users/x] [--slug connect-island]
+ *                                    [--home-dir /Users/x] [--slug connect-island] \
+ *                                    [--thumbnail <file>] [--drop-turns 1,2,13]
  */
 
 import { spawn } from "node:child_process";
@@ -37,7 +43,12 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REPO = path.resolve(__dirname, "..");
 
 function parseArgs(argv) {
-  const out = { base: "/apps/connect-island/", slug: "connect-island", homeDir: os.homedir() };
+  const out = {
+    base: "/apps/connect-island/",
+    slug: "connect-island",
+    homeDir: os.homedir(),
+    dropTurns: new Set(),
+  };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === "--session-id") out.sessionId = argv[++i];
@@ -45,6 +56,14 @@ function parseArgs(argv) {
     else if (a === "--home-dir") out.homeDir = argv[++i];
     else if (a === "--slug") out.slug = argv[++i];
     else if (a === "--thumbnail") out.thumbnail = argv[++i];
+    else if (a === "--drop-turns") {
+      out.dropTurns = new Set(
+        argv[++i]
+          .split(",")
+          .map((t) => Number(t.trim()))
+          .filter((t) => Number.isInteger(t)),
+      );
+    }
   }
   return out;
 }
@@ -149,23 +168,35 @@ const COMPACT_PREFIX = "This session is being continued from a previous conversa
  *  Anything longer is the human being away, not the agent thinking. */
 const ACTIVE_GAP_CAP_MS = 60_000;
 
-async function analyzeJournal(journalFile) {
-  const rows = await loadJsonl(journalFile);
-  if (!rows) throw new Error(`required journal missing: ${journalFile}`);
-  const meta = rows.find((r) => r.type === "session_meta");
+/**
+ * Drop whole turns and renumber the survivors from 1, so the published
+ * transcript reads as a clean run rather than one starting at "TURN 03".
+ * Returns the kept events (session_meta excluded — it is rebuilt from these).
+ */
+function trimTurns(rows, dropTurns) {
+  const kept = rows.filter((r) => r.type !== "session_meta" && !dropTurns.has(r.turn));
+  const renumber = new Map(
+    [...new Set(kept.map((r) => r.turn))].sort((a, b) => a - b).map((t, i) => [t, i + 1]),
+  );
+  return kept.map((r) => ({ ...r, turn: renumber.get(r.turn) }));
+}
+
+function analyzeEvents(events) {
   let toolCalls = 0;
   let checkpoints = 0;
   let userMessages = 0;
+  let assistantMessages = 0;
   const byTurn = new Map();
-  for (const r of rows) {
+  for (const r of events) {
     if (r.type === "tool_call") {
       toolCalls += 1;
       if (r.checkpoint_path) checkpoints += 1;
     }
+    if (r.type === "assistant_text") assistantMessages += 1;
     if (r.type === "user_message" && !r.content?.trimStart().startsWith(COMPACT_PREFIX)) {
       userMessages += 1;
     }
-    if (r.type === "session_meta" || !r.ts) continue;
+    if (!r.ts) continue;
     const list = byTurn.get(r.turn) ?? [];
     list.push(Date.parse(r.ts));
     byTurn.set(r.turn, list);
@@ -187,7 +218,17 @@ async function analyzeJournal(journalFile) {
       return sum;
     });
 
-  return { meta, toolCalls, checkpoints, userMessages, turnDurations };
+  const stamps = events.map((r) => r.ts).filter(Boolean).sort();
+
+  return {
+    toolCalls,
+    checkpoints,
+    userMessages,
+    assistantMessages,
+    turnDurations,
+    startedAt: stamps[0],
+    updatedAt: stamps[stamps.length - 1],
+  };
 }
 
 async function main() {
@@ -208,37 +249,79 @@ async function main() {
   if (!existsSync(journalFile)) throw new Error(`journal not found: ${journalFile}`);
   console.log(`▶ packaging session ${sessionId}`);
 
-  // 3. Copy journal JSONL.
+  // 3. Load, trim, and write the transcript.
+  const rows = await loadJsonl(journalFile);
+  if (!rows) throw new Error(`required journal missing: ${journalFile}`);
+  const meta = rows.find((r) => r.type === "session_meta");
+  if (!meta) throw new Error(`session_meta missing in ${journalFile}`);
+
+  const events = trimTurns(rows, args.dropTurns);
+  if (args.dropTurns.size > 0) {
+    const turns = new Set(events.map((r) => r.turn));
+    console.log(
+      `  dropped turns ${[...args.dropTurns].sort((a, b) => a - b).join(", ")} ` +
+        `(${rows.length - 1 - events.length} events); ${turns.size} turns renumbered from 1`,
+    );
+  }
+
+  const {
+    toolCalls,
+    checkpoints,
+    userMessages,
+    assistantMessages,
+    turnDurations,
+    startedAt,
+    updatedAt,
+  } = analyzeEvents(events);
+
   const outJournalDir = path.join(distDir, "journal");
   await rm(outJournalDir, { recursive: true, force: true });
   await mkdir(outJournalDir, { recursive: true });
-  await copyFile(journalFile, path.join(outJournalDir, "session.jsonl"));
 
-  // 4. Flatten checkpoints.
+  const outMeta = {
+    ...meta,
+    started_at: startedAt,
+    updated_at: updatedAt,
+    ts: startedAt,
+    user_messages: userMessages,
+    assistant_messages: assistantMessages,
+    tool_uses: toolCalls,
+  };
+  await writeFile(
+    path.join(outJournalDir, "session.jsonl"),
+    [outMeta, ...events].map((e) => JSON.stringify(e)).join("\n") + "\n",
+  );
+
+  // 4. Flatten checkpoints — only the ones a surviving event still points at.
+  const referenced = new Set(
+    events.filter((r) => r.checkpoint_path).map((r) => path.basename(r.checkpoint_path)),
+  );
   const srcCheckpoints = path.join(journalDir, "checkpoints", sessionId);
   const outCheckpoints = path.join(outJournalDir, "checkpoints");
   await mkdir(outCheckpoints, { recursive: true });
   if (existsSync(srcCheckpoints)) {
-    const files = (await readdir(srcCheckpoints)).filter((f) => !f.startsWith("."));
+    const all = (await readdir(srcCheckpoints)).filter((f) => !f.startsWith("."));
+    const files = all.filter((f) => referenced.has(f));
     for (const f of files) {
       await copyFile(path.join(srcCheckpoints, f), path.join(outCheckpoints, f));
     }
-    console.log(`  checkpoints: ${files.length} copied`);
+    console.log(`  checkpoints: ${files.length} copied (${all.length - files.length} orphaned)`);
   } else {
     console.warn(`  no checkpoints dir at ${srcCheckpoints}`);
   }
 
   // 5. Aggregate stats.
-  const { meta, toolCalls, checkpoints, userMessages, turnDurations } =
-    await analyzeJournal(journalFile);
-  if (!meta) throw new Error(`session_meta missing in ${journalFile}`);
   // history.jsonl only holds a rolling window and no longer covers this
   // session, so the journal's own prompt rows are the count of record.
-  const promptCount = await countPromptsFromHistory(sessionId, args.homeDir);
+  const promptCount = args.dropTurns.size
+    ? 0
+    : await countPromptsFromHistory(sessionId, args.homeDir);
   const transcriptFile = transcriptPathFor(sessionId, meta.cwd, args.homeDir);
   const transcript = await analyzeTranscript(transcriptFile);
 
-  const ccTurnDurations = transcript?.turnDurations ?? [];
+  // The transcript's turn_duration rows (when present) cover the whole
+  // session, so they can only be trusted when nothing was dropped.
+  const ccTurnDurations = args.dropTurns.size ? [] : (transcript?.turnDurations ?? []);
   const useCcDurations = ccTurnDurations.length > 0;
   const durations = useCcDurations ? ccTurnDurations : turnDurations;
 
@@ -250,10 +333,8 @@ async function main() {
       promptCount > 0
         ? "history.jsonl"
         : "journal user_message rows excluding the auto-compaction continuation",
-    assistant_messages: transcript?.assistantText ?? null,
-    assistant_messages_source: transcript
-      ? "cc-transcript (text-bearing)"
-      : "unavailable — edit stats.json manually",
+    assistant_messages: assistantMessages,
+    assistant_messages_source: "journal assistant_text rows",
     tool_calls: toolCalls,
     checkpoints,
     turns: durations.length,
@@ -265,8 +346,15 @@ async function main() {
     model: meta.model,
     built_with: "Claude Code",
     claude_code_version: meta.claude_code_version,
-    started_at: meta.started_at,
-    updated_at: meta.updated_at,
+    started_at: startedAt,
+    updated_at: updatedAt,
+    ...(args.dropTurns.size > 0
+      ? {
+          dropped_turns: [...args.dropTurns].sort((a, b) => a - b),
+          dropped_turns_note:
+            "off-topic turns removed from the published transcript; the full journal lives in the source repo under .claude/journal/",
+        }
+      : {}),
   };
 
   await writeFile(
