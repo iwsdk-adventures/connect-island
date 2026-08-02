@@ -7,14 +7,24 @@
  * silhouette that reads as a glass prism; only overlapping irregular shapes
  * break that outline up.
  *
- * The tongues live under a group named 'FlameGroup' so FirePitSystem can find
- * and animate them without knowing the rest of the hierarchy.
+ * Every sheet carries its own size, rate and phase in userData, and the system
+ * animates each one separately. Scaling the whole group together - which is what
+ * this did first - moves every tongue in lockstep and reads as one object
+ * breathing rather than as fire.
+ *
+ * Above the tongues is an instanced swarm of embers. Their motion is a pure
+ * function of time and instance index, so the swarm needs no per-particle state
+ * and no allocation per frame.
+ *
+ * The tongues live under a group named 'FlameGroup' and the swarm is named
+ * 'EmberSwarm', so FirePitSystem can find them without knowing the hierarchy.
  */
 
 import {
   CircleGeometry,
   CylinderGeometry,
   Group,
+  InstancedMesh,
   PlaneGeometry,
   Mesh,
   SphereGeometry,
@@ -25,6 +35,7 @@ import {
   creamShell,
   darkStone,
   emberBed,
+  emberSpark,
   flameCoreMaterial,
   flameMaterial,
   graphite,
@@ -135,12 +146,16 @@ firepit.add(flames);
 const flameQuad = new PlaneGeometry(1, 1);
 flameQuad.translate(0, 0.5, 0);
 
+// Rates are deliberately incommensurate. Any two tongues on rates with a simple
+// ratio visibly re-sync every couple of seconds, which is the tell.
 const SHEETS = [
-  { w: 1.66, h: 0.92, yaw: 0.0, core: false },
-  { w: 1.42, h: 1.1, yaw: 1.05, core: false },
-  { w: 1.54, h: 0.82, yaw: 2.1, core: false },
-  { w: 0.86, h: 0.64, yaw: 0.5, core: true },
-  { w: 0.72, h: 0.78, yaw: 1.6, core: true },
+  { w: 1.66, h: 0.92, yaw: 0.0, core: false, rate: 3.1, phase: 0.0 },
+  { w: 1.42, h: 1.1, yaw: 1.05, core: false, rate: 4.3, phase: 1.7 },
+  { w: 1.54, h: 0.82, yaw: 2.1, core: false, rate: 3.7, phase: 3.4 },
+  { w: 1.18, h: 1.24, yaw: 2.7, core: false, rate: 5.2, phase: 0.9 },
+  { w: 0.86, h: 0.64, yaw: 0.5, core: true, rate: 6.7, phase: 2.2 },
+  { w: 0.72, h: 0.78, yaw: 1.6, core: true, rate: 7.9, phase: 5.1 },
+  { w: 0.58, h: 0.52, yaw: 2.9, core: true, rate: 9.1, phase: 4.0 },
 ];
 
 SHEETS.forEach((sheet, index) => {
@@ -151,7 +166,31 @@ SHEETS.forEach((sheet, index) => {
   mesh.scale.set(sheet.w, sheet.h, 1);
   mesh.rotation.y = sheet.yaw;
   mesh.name = `Flame sheet ${index}`;
+  // Cloned with the mesh, so each placement animates the same way.
+  mesh.userData.flame = {
+    w: sheet.w,
+    h: sheet.h,
+    rate: sheet.rate,
+    phase: sheet.phase,
+  };
   flames.add(mesh);
 });
+
+/* ------------------------------------------------------------------ embers */
+
+/** Sparks in the swarm. One draw call regardless. */
+export const EMBER_COUNT = 34;
+
+const embersSwarm = new InstancedMesh(
+  new SphereGeometry(0.035, 5, 4),
+  emberSpark,
+  EMBER_COUNT,
+);
+embersSwarm.name = 'EmberSwarm';
+embersSwarm.position.y = BOWL_TOP - 0.1;
+// Sparks are never in the same place twice; a stale bounding sphere would cull
+// the whole swarm as soon as it drifted off the origin.
+embersSwarm.frustumCulled = false;
+firepit.add(embersSwarm);
 
 export default shadowProp(firepit);

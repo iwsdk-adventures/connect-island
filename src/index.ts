@@ -20,16 +20,13 @@ World.create(
   projectOptions,
 ).then((world) => {
   // IWSDK leaves the renderer's shadow map off and offers no project-config
-  // switch for it. Only the sun casts, so this is a single extra pass.
+  // switch for it. Only the sun casts, so this is a single extra pass - drop it
+  // if device frame time suffers.
   //
-  // Known limitation: the pass runs and DayNightSystem's sun does allocate and
-  // fill a 2048 shadow map, but no receiver in the scene ever samples it, so no
-  // cast shadow appears at any hour. Verified in isolation - renderer flag on,
-  // light castShadow on, target aimed at the site, frustum framed on the venue,
-  // 233 casters and 231 receivers flagged, materials forced to recompile - and
-  // a plain box floating over open sand casts nothing either. The scene is lit
-  // and graded to read without them; leaving the flag on so it starts working
-  // the moment the underlying cause is found.
+  // This only does anything in combination with two other things: the shadow
+  // flags the asset prototypes set (see shadowProp / shadowReceiver in
+  // palette.ts) and DayNightSystem owning the key light, which is what finally
+  // got the sun pointing at the site rather than away from it.
   world.renderer.shadowMap.enabled = true;
   world.renderer.shadowMap.type = PCFSoftShadowMap;
 

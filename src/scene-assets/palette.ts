@@ -11,6 +11,7 @@
  */
 
 import {
+  AdditiveBlending,
   BufferGeometry,
   DoubleSide,
   Mesh,
@@ -479,10 +480,18 @@ export const emberBed = new MeshStandardMaterial({
 
 // Soft alpha ramp on crossed quads. Geometry-based flames always show their
 // silhouette; an alpha texture has none, which is what sells it.
+//
+// Tinted and additive. Untinted, the texture's white RGB came through as a pale
+// plume that read as steam rather than fire, and alpha blending let the sheets
+// flatten each other instead of stacking. Additive means overlapping tongues
+// build toward the white-hot centre on their own, which is the whole reason
+// there is more than one of them.
 export const flameMaterial = new MeshBasicMaterial({
   map: flameTexture,
+  color: '#ff6410',
   transparent: true,
-  opacity: 0.9,
+  opacity: 0.95,
+  blending: AdditiveBlending,
   depthWrite: false,
   toneMapped: false,
   side: DoubleSide,
@@ -490,12 +499,28 @@ export const flameMaterial = new MeshBasicMaterial({
 
 export const flameCoreMaterial = new MeshBasicMaterial({
   map: flameTexture,
-  color: '#fff0c4',
+  color: '#ffcf72',
   transparent: true,
-  opacity: 0.75,
+  opacity: 0.85,
+  blending: AdditiveBlending,
   depthWrite: false,
   toneMapped: false,
   side: DoubleSide,
+});
+
+/**
+ * Rising sparks. Additive and un-fogged: an ember is light, not a lit surface,
+ * so it should brighten whatever it drifts across rather than be shaded by it.
+ * depthWrite off keeps sparks from punching holes in the flame behind them.
+ */
+export const emberSpark = new MeshBasicMaterial({
+  color: '#ff9a3c',
+  transparent: true,
+  opacity: 0.95,
+  blending: AdditiveBlending,
+  depthWrite: false,
+  toneMapped: false,
+  fog: false,
 });
 
 /* -------------------------------------------------------------------- planting */
