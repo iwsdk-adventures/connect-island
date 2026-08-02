@@ -18,6 +18,11 @@
  */
 
 import { frozenTimeOfDay } from '../debug-time.js';
+import {
+  brandMagenta,
+  brandViolet,
+  brandVioletTwoSided,
+} from '../scene-assets/palette.js';
 import { RIDGE_AERIAL, ridgeMaterials } from '../scene-assets/skyline.scene-asset.js';
 import {
   seaFloorMaterial,
@@ -188,8 +193,12 @@ export class DayNightSystem extends createSystem(
     this.sun.name = 'Sun';
     this.sun.castShadow = true;
     this.sun.shadow.mapSize.set(2048, 2048);
-    this.sun.shadow.bias = -0.0004;
-    this.sun.shadow.normalBias = 0.028;
+    // Small biases on purpose. At 25 m of half-extent on a 2048 map a texel is
+    // ~24 mm, and a 28 mm normal bias was pushing the sample far enough off the
+    // surface to erase every contact shadow - furniture read as hovering even
+    // though the long shadows behind it were landing correctly.
+    this.sun.shadow.bias = -0.00018;
+    this.sun.shadow.normalBias = 0.012;
     const shadowCamera = this.sun.shadow.camera;
     shadowCamera.near = 1;
     shadowCamera.far = SUN_DISTANCE * 2.4;
@@ -357,6 +366,17 @@ export class DayNightSystem extends createSystem(
       0.21 * Math.max(day, 0.04) + hb * 0.3,
     );
     waterMaterial.envMapIntensity = 0.18 + Math.max(day, 0.04) * 0.34;
+
+    // Architectural lighting follows the sun, the way a real venue's does. The
+    // violet fascia was authored at a fixed emissive and became the loudest
+    // object in every daylight frame - a saturated band that read as an
+    // emissive left at full strength rather than as a lit soffit. Held down at
+    // noon and let up after dusk, it recedes by day and carries the venue at
+    // night, which is the only time it should be the brightest thing around.
+    const dusk = 1 - Math.min(Math.max(this.iblIntensity / 0.5, 0), 1);
+    brandViolet.emissiveIntensity = 0.1 + dusk * 0.8;
+    brandVioletTwoSided.emissiveIntensity = brandViolet.emissiveIntensity;
+    brandMagenta.emissiveIntensity = 0.09 + dusk * 0.75;
 
     // The floor under the water: the same hue, well down in value, so depth
     // reads as depth rather than as a second surface.

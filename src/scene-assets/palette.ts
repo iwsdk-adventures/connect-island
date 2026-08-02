@@ -586,8 +586,17 @@ export function roundedSlabGeometry(
   cornerRadius = 0.14,
   bevel = 0.05,
 ): ExtrudeGeometry {
-  const halfW = Math.max(width / 2 - bevel, 0.01);
-  const halfH = Math.max(height / 2 - bevel, 0.01);
+  // The bevel has to fit inside the slab. Asking for a 5 cm bevel on an 11 cm
+  // post drove the shape's half-width to the 1 cm floor and then swept a bevel
+  // 2.5x wider than the shape itself: the extrusion self-intersected and came
+  // out as a spray of shards. Every small fitting in the project - bollard
+  // posts, light slots - was built that way. Clamp against the smallest span.
+  const fitted = Math.max(
+    Math.min(bevel, Math.min(width, height, depth) * 0.22),
+    0,
+  );
+  const halfW = Math.max(width / 2 - fitted, 0.005);
+  const halfH = Math.max(height / 2 - fitted, 0.005);
   const r = Math.min(cornerRadius, Math.min(halfW, halfH) * 0.98);
   const shape = new Shape();
   shape.moveTo(-halfW + r, -halfH);
@@ -600,12 +609,12 @@ export function roundedSlabGeometry(
   shape.lineTo(-halfW, -halfH + r);
   shape.absarc(-halfW + r, -halfH + r, r, Math.PI, Math.PI * 1.5, false);
 
-  const extrudeDepth = Math.max(depth - bevel * 2, 0.01);
+  const extrudeDepth = Math.max(depth - fitted * 2, 0.005);
   const geometry = new ExtrudeGeometry(shape, {
     depth: extrudeDepth,
-    bevelEnabled: true,
-    bevelSize: bevel,
-    bevelThickness: bevel,
+    bevelEnabled: fitted > 0.0005,
+    bevelSize: fitted,
+    bevelThickness: fitted,
     bevelSegments: 3,
     curveSegments: 8,
   });

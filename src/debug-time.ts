@@ -7,7 +7,7 @@
  *
  * `?t=0.35` on the URL does the same thing at runtime without a rebuild.
  */
-export const DEBUG_TIME_OF_DAY: number | null = 0.94;
+export const DEBUG_TIME_OF_DAY: number | null = null;
 
 /**
  * The frozen time actually in force, URL first.

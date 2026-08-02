@@ -165,6 +165,46 @@ for (let i = 0; i < 18; i += 1) {
   stage.add(strut);
 }
 
+// Masts. Upstage the ring is close enough to the backdrop shell to read as
+// carried by it; downstage it was a black hoop hanging in mid-air with no mast,
+// truss leg or cable anywhere - the clearest unfinished-blockout tell on the
+// whole site. Two legs just outside the fixture arc put it on the deck.
+const MAST_ANGLES = [Math.PI * 0.6, Math.PI * 1.4];
+for (let i = 0; i < MAST_ANGLES.length; i += 1) {
+  const angle = MAST_ANGLES[i];
+  const x = Math.sin(angle) * TRUSS_RADIUS;
+  const z = Math.cos(angle) * TRUSS_RADIUS;
+  const height = TRUSS_Y - RISER_TOP;
+
+  const mast = new Mesh(
+    new CylinderGeometry(0.06, 0.085, height, 12),
+    darkMetal,
+  );
+  mast.position.set(x, RISER_TOP + height / 2, z);
+  mast.name = `Truss mast ${i}`;
+  stage.add(mast);
+
+  const foot = new Mesh(new CylinderGeometry(0.24, 0.3, 0.09, 16), darkMetal);
+  foot.position.set(x, RISER_TOP + 0.045, z);
+  foot.name = `Truss mast foot ${i}`;
+  stage.add(foot);
+
+  // Diagonal brace back toward the shell, so the leg is not a lone pole.
+  const braceLength = 1.5;
+  const brace = new Mesh(
+    new CylinderGeometry(0.03, 0.03, braceLength, 8),
+    darkMetal,
+  );
+  brace.position.set(
+    x * 0.88,
+    TRUSS_Y - 0.62,
+    z * 0.88 - 0.34,
+  );
+  brace.rotation.set(0.72, angle, 0.34);
+  brace.name = `Truss mast brace ${i}`;
+  stage.add(brace);
+}
+
 // Fixtures across the downstage arc.
 const fixtureBody = new CylinderGeometry(0.13, 0.17, 0.32, 14);
 const fixtureLens = new CylinderGeometry(0.17, 0.17, 0.04, 14);

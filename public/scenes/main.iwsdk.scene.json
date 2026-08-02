@@ -731,8 +731,8 @@
                 1
               ],
               "decay": 2,
-              "distance": 24,
-              "intensity": 115
+              "distance": 13,
+              "intensity": 62
             }
           },
           "id": "firepit-light",
@@ -1222,20 +1222,6 @@
           0,
           -82.98,
           0
-        ]
-      }
-    },
-    {
-      "content": {
-        "asset": "planter-palm",
-        "type": "asset"
-      },
-      "id": "stage-planter-0",
-      "transform": {
-        "position": [
-          18.119,
-          0,
-          -11.464
         ]
       }
     },

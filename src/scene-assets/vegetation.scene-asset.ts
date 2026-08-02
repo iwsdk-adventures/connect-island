@@ -41,7 +41,7 @@ const SHRUB_LEAVES = 7;
 const TUFT_BLADES = 4;
 
 /** Keep-out margin beyond the built silhouette, in metres. */
-const CLEARANCE = 2.2;
+const CLEARANCE = 2.9;
 /** Tufts crowd closer to the decks than trees do; they are ankle height. */
 const TUFT_CLEARANCE = 0.9;
 const INNER_RADIUS = 16;
@@ -83,26 +83,47 @@ function isBuilt(x: number, z: number, margin: number): boolean {
   return inside;
 }
 
-/** Deterministic scatter of `count` points in the planting annulus. */
+/**
+ * Deterministic scatter of `count` points in the planting annulus.
+ *
+ * Points are drawn around a small number of grove centres rather than spread
+ * evenly. An even scatter is the giveaway that planting was generated rather
+ * than placed: uniform density at uniform spacing reads as a procedural test
+ * field, not as landscape. Clumping into groves - with clearings between them -
+ * is what makes it read as somewhere.
+ *
+ * `spread` is the grove radius in metres; pass a large one for ground cover
+ * that should still feel continuous.
+ */
 function scatter(
   count: number,
   salt: number,
   margin: number,
   inner: number,
+  groves = 9,
+  spread = 7.5,
 ): Array<[number, number]> {
   const points: Array<[number, number]> = [];
-  for (let i = 0; points.length < count && i < count * 24; i += 1) {
-    const angle = rand(i, salt) * Math.PI * 2;
-    // sqrt keeps the density even across the annulus rather than bunching in.
-    const t = rand(i, salt + 91);
-    const radius = Math.sqrt(
-      inner * inner + t * (OUTER_RADIUS * OUTER_RADIUS - inner * inner),
+  for (let i = 0; points.length < count && i < count * 40; i += 1) {
+    const grove = i % groves;
+    // Grove centres are themselves scattered across the annulus.
+    const groveAngle = rand(grove, salt + 3.3) * Math.PI * 2;
+    const groveRadius = Math.sqrt(
+      inner * inner +
+        rand(grove, salt + 51) * (OUTER_RADIUS * OUTER_RADIUS - inner * inner),
     );
-    const x = Math.sin(angle) * radius;
-    const z = Math.cos(angle) * radius;
-    if (!isBuilt(x, z, margin)) {
-      points.push([x, z]);
+    // Denser at the middle of a grove, thinning at its edge. sqrt rather than a
+    // product: squaring pulled almost everything to the grove centre and left
+    // the ground between groves visibly bare.
+    const drift = Math.sqrt(rand(i, salt)) * spread;
+    const driftAngle = rand(i, salt + 17) * Math.PI * 2;
+    const x = Math.sin(groveAngle) * groveRadius + Math.sin(driftAngle) * drift;
+    const z = Math.cos(groveAngle) * groveRadius + Math.cos(driftAngle) * drift;
+    const radius = Math.hypot(x, z);
+    if (radius < inner || radius > OUTER_RADIUS || isBuilt(x, z, margin)) {
+      continue;
     }
+    points.push([x, z]);
   }
   return points;
 }
@@ -148,20 +169,29 @@ const limb = new Object3D();
 root.add(crown);
 crown.add(limb);
 
-const trunkGeometry = new CylinderGeometry(0.11, 0.17, 1, 7);
+// A UNIT cylinder, scaled per segment to the trunk's radius at that height.
+// Tapering the geometry itself and scaling each segment uniformly made the
+// wider bottom of every segment overhang the narrower top of the one below it -
+// a stack of open cones with a visible step and gap at each joint.
+const trunkGeometry = new CylinderGeometry(1, 1, 1, 7);
+/** Trunk radius at the base and at the crown. */
+const TRUNK_BASE_RADIUS = 0.155;
+const TRUNK_TIP_RADIUS = 0.095;
 // Only the fronds are ever silhouetted against the sky, so only they pay for a
 // smooth outline.
 const frondGeometry = leafGeometry(2.15, 0.6, 7);
 const shrubGeometry = leafGeometry(0.62, 0.44, 4);
 const tuftGeometry = bladeGeometry(0.42, 0.07);
 
-const palmSites = scatter(PALMS, 3.1, CLEARANCE, INNER_RADIUS);
-const shrubSites = scatter(SHRUBS, 17.7, CLEARANCE, INNER_RADIUS);
+// Palms in a handful of tight groves; undergrowth in more, looser ones, so the
+// two layers do not share the same outline.
+const palmSites = scatter(PALMS, 3.1, CLEARANCE, INNER_RADIUS, 17, 7.5);
+const shrubSites = scatter(SHRUBS, 17.7, CLEARANCE, INNER_RADIUS, 23, 9.5);
 // Grass grows in patches. Each scattered site seeds a few tufts within a metre
 // of each other, which reads as ground cover; the same blade count spread
 // evenly reads as scattered debris.
 const tuftSites: Array<[number, number]> = [];
-scatter(TUFT_CLUMPS, 61.3, TUFT_CLEARANCE, SITE.groundRadius * 0.32).forEach(
+scatter(TUFT_CLUMPS, 61.3, TUFT_CLEARANCE, SITE.groundRadius * 0.32, 28, 12).forEach(
   ([cx, cz], c) => {
     for (let k = 0; k < TUFTS_PER_CLUMP; k += 1) {
       tuftSites.push([
@@ -199,9 +229,13 @@ let frondIndex = 0;
 palmSites.forEach(([x, z], i) => {
   // Tall enough that the crown clears a standing viewer by a good margin -
   // shorter than this and a palm reads as a potted plant, not a tree.
-  const height = 4.2 + rand(i, 5.5) * 2.6;
+  const height = 3.4 + rand(i, 5.5) * 4.0;
   // Total tilt at the crown, in radians. Applied as a smooth arc below.
   const lean = (rand(i, 8.2) - 0.5) * 0.34;
+  // A 7 m palm on a 4 m palm's trunk reads as a bare dowel. Girth and crown
+  // both track height, so tall trees stay in proportion instead of thinning
+  // into poles with a tuft on top.
+  const girth = 0.78 + (height / 7.4) * 0.5;
   root.position.set(x, 0, z);
   root.rotation.set(0, rand(i, 12.4) * Math.PI * 2, 0);
 
@@ -220,9 +254,13 @@ palmSites.forEach(([x, z], i) => {
     crown.rotation.set(0, 0, tilt(mid));
     limb.position.set(0, 0, 0);
     limb.rotation.set(0, 0, 0);
-    const taper = 1 - (s / TRUNK_SEGMENTS) * 0.42;
-    // 6% overlap so the joints between segments never open up on the curve.
-    limb.scale.set(taper, segment * 1.06, taper);
+    // Radius sampled from the same continuous taper the next segment will
+    // sample, so consecutive segments meet at nearly the same width; the 6%
+    // length overlap covers the rest.
+    const f = (s + 0.5) / TRUNK_SEGMENTS;
+    const radius =
+      (TRUNK_BASE_RADIUS + (TRUNK_TIP_RADIUS - TRUNK_BASE_RADIUS) * f) * girth;
+    limb.scale.set(radius, segment * 1.06, radius);
     root.updateWorldMatrix(false, true);
     trunks.setMatrixAt(trunkIndex, limb.matrixWorld);
     trunkIndex += 1;
@@ -241,7 +279,7 @@ palmSites.forEach(([x, z], i) => {
       (f / FRONDS) * Math.PI * 2 + rand(i, f + 3) * 0.3,
       0,
     );
-    const spread = 0.85 + rand(i * 31 + f, 2.2) * 0.4;
+    const spread = (0.85 + rand(i * 31 + f, 2.2) * 0.4) * girth * 1.15;
     limb.scale.set(spread * 0.9, spread, 1);
     root.updateWorldMatrix(false, true);
     fronds.setMatrixAt(frondIndex, limb.matrixWorld);
@@ -251,7 +289,7 @@ palmSites.forEach(([x, z], i) => {
 
 let shrubIndex = 0;
 shrubSites.forEach(([x, z], i) => {
-  const size = 0.85 + rand(i, 23.3) * 0.75;
+  const size = 0.95 + rand(i, 23.3) * 0.8;
   root.position.set(x, 0, z);
   root.rotation.set(0, rand(i, 41.9) * Math.PI * 2, 0);
   crown.position.set(0, 0, 0);
@@ -259,7 +297,7 @@ shrubSites.forEach(([x, z], i) => {
 
   for (let l = 0; l < SHRUB_LEAVES; l += 1) {
     // Alternating pitch gives the clump an interior instead of a flat rosette.
-    const pitch = l % 2 === 0 ? 1.05 : 0.62;
+    const pitch = l % 2 === 0 ? 1.34 : 1.06;
     limb.position.set(0, 0.04, 0);
     limb.rotation.set(
       -Math.PI / 2 + pitch,
@@ -295,11 +333,21 @@ tuftSites.forEach(([x, z], i) => {
   }
 });
 
+// An InstancedMesh frustum-culls against its OWN bounding sphere, and that
+// sphere is null until this is called - at which point Three falls back to the
+// base geometry's, a sphere around a single leaf at the origin. The frond mesh
+// was therefore culled from most viewpoints while the trunk mesh (a unit
+// cylinder, so a far larger fallback sphere) survived: whole groves rendered as
+// bare poles. Computing the real sphere fixes it and keeps culling working.
 trunks.instanceMatrix.needsUpdate = true;
 fronds.instanceMatrix.needsUpdate = true;
 shrubs.instanceMatrix.needsUpdate = true;
 shrubs.castShadow = true;
 tufts.instanceMatrix.needsUpdate = true;
+trunks.computeBoundingSphere();
+fronds.computeBoundingSphere();
+shrubs.computeBoundingSphere();
+tufts.computeBoundingSphere();
 trunks.castShadow = true;
 fronds.castShadow = true;
 
