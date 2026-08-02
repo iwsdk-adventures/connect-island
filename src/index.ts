@@ -11,6 +11,7 @@ import { BlobShadowSystem } from './systems/blob-shadows.js';
 import { StageScreenLayerSystem } from './systems/stage-screen-layer.js';
 import { frozenTimeOfDay } from './debug-time.js';
 import projectOptions from 'virtual:iwsdk-project';
+import { BrowserLookSystem } from './systems/browser-look.js';
 import { CameraFlightSystem } from './systems/camera-flight.js';
 import { DayNightSystem } from './systems/day-night.js';
 import { FirePitSystem } from './systems/firepit.js';
@@ -41,6 +42,8 @@ World.create(
   world.scene.fog = new Fog('#bcd0e4', 140, 2200);
 
   world.registerSystem(CameraFlightSystem);
+  // After the flight, so the shot it is holding is not overwritten mid-frame.
+  world.registerSystem(BrowserLookSystem);
   world.registerSystem(FirePitSystem);
   world.registerSystem(StageLightSystem);
   world.registerSystem(MonumentSystem);

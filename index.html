@@ -57,6 +57,13 @@
       #landing > * {
         pointer-events: auto;
       }
+      /* The children opt back into hit-testing, so `pointer-events: none` on
+         the dismissed parent does not reach them: an invisible headline and a
+         pair of invisible buttons go on swallowing every drag that starts over
+         them, which is most of the viewport. Turn them off explicitly. */
+      #landing.dismissed > * {
+        pointer-events: none;
+      }
 
       .eyebrow {
         font-size: clamp(12px, 1.1vw, 15px);
@@ -149,6 +156,9 @@
         font-size: 14px;
         letter-spacing: 0.2px;
         transition: opacity 500ms ease;
+        /* It only ever reads "drag to look" - it should not be a thing you can
+           accidentally start that drag on. */
+        pointer-events: none;
       }
 
       /* Covers the empty canvas until World.create() resolves. Everything that

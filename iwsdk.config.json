@@ -37,7 +37,8 @@
     },
     "features": {
       "locomotion": {
-        "useWorker": true
+        "useWorker": true,
+        "browserControls": true
       },
       "grabbing": true,
       "physics": false,
