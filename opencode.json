@@ -4,7 +4,7 @@
       "type": "local",
       "command": [
         "node",
-        "/Users/felixz/Projects/iwsdk-apps/connect-site/node_modules/@iwsdk/cli/dist/cli.js",
+        "/Users/felixz/Projects/iwsdk-apps/connect-island/node_modules/@iwsdk/cli/dist/cli.js",
         "mcp",
         "stdio"
       ],
@@ -14,7 +14,7 @@
       "type": "local",
       "command": [
         "node",
-        "/Users/felixz/Projects/iwsdk-apps/connect-site/node_modules/@iwsdk/reference/dist/cli.js"
+        "/Users/felixz/Projects/iwsdk-apps/connect-island/node_modules/@iwsdk/reference/dist/cli.js"
       ],
       "enabled": true
     },
@@ -22,7 +22,7 @@
       "type": "local",
       "command": [
         "node",
-        "/Users/felixz/Projects/iwsdk-apps/connect-site/node_modules/@meta-quest/metavr/bin.js",
+        "/Users/felixz/Projects/iwsdk-apps/connect-island/node_modules/@meta-quest/metavr/bin.js",
         "mcp",
         "server"
       ],

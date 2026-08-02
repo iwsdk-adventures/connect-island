@@ -1,5 +1,5 @@
 {
-  "name": "connect-site",
+  "name": "connect-island",
   "private": true,
   "dependencies": {
     "@iwsdk/core": "0.5.1",
@@ -124,7 +124,8 @@
     "reference:warmup": "iwsdk reference warmup",
     "typecheck": "tsc --noEmit",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "package:hub": "node scripts/package-for-hub.mjs"
   },
   "devDependencies": {
     "@iwsdk/reference": "0.5.1",

@@ -105,7 +105,7 @@ export const waterMaterial = new MeshStandardMaterial({
 waterMaterial.normalScale.set(1.15, 1.15);
 
 // Distinct cache key: the injected chunks change the program.
-waterMaterial.customProgramCacheKey = () => 'connect-site-water';
+waterMaterial.customProgramCacheKey = () => 'connect-island-water';
 
 waterMaterial.onBeforeCompile = (shader) => {
   shader.uniforms.uWaveTime = waterUniforms.uWaveTime;

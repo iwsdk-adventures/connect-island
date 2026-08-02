@@ -86,7 +86,7 @@ function bindLanding(world: Awaited<ReturnType<typeof World.create>>): void {
   const dismiss = (showHud: boolean): void => {
     landing?.classList.add('dismissed');
     // The flight system listens for this and hands the rig back.
-    window.dispatchEvent(new Event('connect-site:explore'));
+    window.dispatchEvent(new Event('connect-island:explore'));
     if (showHud) {
       hud?.removeAttribute('hidden');
       window.setTimeout(() => hud?.setAttribute('hidden', ''), 6000);

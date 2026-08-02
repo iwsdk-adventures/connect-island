@@ -129,9 +129,9 @@ export class CameraFlightSystem extends createSystem({}) {
 
     // The landing page owns the dismiss control.
     const stop = () => this.release();
-    window.addEventListener('connect-site:explore', stop);
+    window.addEventListener('connect-island:explore', stop);
     this.cleanupFuncs.push(() =>
-      window.removeEventListener('connect-site:explore', stop),
+      window.removeEventListener('connect-island:explore', stop),
     );
   }
 
