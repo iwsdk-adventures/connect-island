@@ -125,7 +125,7 @@
     "typecheck": "tsc --noEmit",
     "build": "vite build",
     "preview": "vite preview",
-    "package:hub": "node scripts/package-for-hub.mjs"
+    "package:hub": "node scripts/package-for-hub.mjs --thumbnail .claude/journal/checkpoints/48180cd9-1615-4933-aa73-1155dad2986f/2026-08-02T04-51-43.071Z_toolu_01VMad1ymTmkxZNjM6HtZPBS.jpg"
   },
   "devDependencies": {
     "@iwsdk/reference": "0.5.1",
