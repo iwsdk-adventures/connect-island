@@ -135,6 +135,12 @@ const KEYS: DayKey[] = [
 const SUN_DISTANCE = 55;
 /** Half-width of the sun's shadow frustum. The venue's outer radius is 22.7. */
 const SHADOW_EXTENT = 25;
+/**
+ * Seconds between sky-dome and IBL rebuilds. Each rebuild is a PMREM pass plus
+ * a render-target reallocation, so this is the difference between a cycle that
+ * costs nothing and one that dominates the frame.
+ */
+const ENVIRONMENT_INTERVAL = 0.5;
 const MAX_ELEVATION = (72 * Math.PI) / 180;
 
 export class DayNightSystem extends createSystem(
@@ -173,6 +179,8 @@ export class DayNightSystem extends createSystem(
   };
   private fogColor!: Color;
   private sun!: DirectionalLight;
+  /** Seconds since the sky dome and the IBL were last rebuilt. */
+  private envAge = Number.POSITIVE_INFINITY;
   private sunIntensity = 0;
   private hemiIntensity = 0;
   private iblIntensity = 0;
@@ -192,13 +200,15 @@ export class DayNightSystem extends createSystem(
     this.sun = new DirectionalLight();
     this.sun.name = 'Sun';
     this.sun.castShadow = true;
-    this.sun.shadow.mapSize.set(2048, 2048);
-    // Small biases on purpose. At 25 m of half-extent on a 2048 map a texel is
-    // ~24 mm, and a 28 mm normal bias was pushing the sample far enough off the
+    // 1024 is 4x less shadow-map fill than 2048 and, over a 50 m frustum on a
+    // headset panel, the difference is not visible.
+    this.sun.shadow.mapSize.set(1024, 1024);
+    // Small biases on purpose. At 25 m of half-extent a texel is ~49 mm on this
+    // map, and a 28 mm normal bias was pushing the sample far enough off the
     // surface to erase every contact shadow - furniture read as hovering even
     // though the long shadows behind it were landing correctly.
-    this.sun.shadow.bias = -0.00018;
-    this.sun.shadow.normalBias = 0.012;
+    this.sun.shadow.bias = -0.0003;
+    this.sun.shadow.normalBias = 0.02;
     const shadowCamera = this.sun.shadow.camera;
     shadowCamera.near = 1;
     shadowCamera.far = SUN_DISTANCE * 2.4;
@@ -229,6 +239,8 @@ export class DayNightSystem extends createSystem(
   }
 
   update(delta: number): void {
+    this.envAge += delta;
+
     if (this.frozen) {
       this.sample(this.t);
       this.applySky();
@@ -286,6 +298,21 @@ export class DayNightSystem extends createSystem(
   }
 
   private applySky(): void {
+    // Raising _needsUpdate on IBLGradient makes EnvironmentSystem run a full
+    // PMREM convolution, then dispose the old render target and allocate a new
+    // one and reassign scene.environment - which rebinds the env map on every
+    // material in the scene. Doing that once per frame was costing far more
+    // than everything else in this system put together, and on a headset it was
+    // the single largest reason the frame budget was blown.
+    //
+    // A full cycle takes 110 s in the browser and 300 s in a session, so the
+    // sky moves imperceptibly between rebuilds at this rate. Lights, fog and
+    // the backdrop tint still update every frame, so nothing visibly steps.
+    const rebuildEnvironment = this.envAge >= ENVIRONMENT_INTERVAL;
+    if (rebuildEnvironment) {
+      this.envAge = 0;
+    }
+
     for (const entity of this.queries.domes.entities) {
       const sky = entity.getVectorView(DomeGradient, 'sky');
       const equator = entity.getVectorView(DomeGradient, 'equator');
@@ -294,7 +321,9 @@ export class DayNightSystem extends createSystem(
       equator.set(this.blend.skyHorizon, 0);
       ground.set(this.blend.ground, 0);
       // Environment props are ignored unless the dirty flag is raised.
-      entity.setValue(DomeGradient, '_needsUpdate', true);
+      if (rebuildEnvironment) {
+        entity.setValue(DomeGradient, '_needsUpdate', true);
+      }
     }
 
     const fog = this.world.scene.fog;
@@ -317,6 +346,9 @@ export class DayNightSystem extends createSystem(
     // receive tracks the sky instead of contradicting it after sunset.
     this.applyBackdrop();
 
+    if (!rebuildEnvironment) {
+      return;
+    }
     for (const entity of this.queries.ibls.entities) {
       entity.getVectorView(IBLGradient, 'sky').set(this.blend.skyTop, 0);
       entity.getVectorView(IBLGradient, 'equator').set(this.blend.skyHorizon, 0);
@@ -358,12 +390,14 @@ export class DayNightSystem extends createSystem(
       ridgeMaterials[i].color.setRGB(rr * sink, rg * sink, rb * sink * 1.08);
     }
 
-    // Sea: deep teal scaled by the day, lifted by a share of the horizon so it
-    // takes the sky's colour at sunrise and sunset instead of staying cyan.
+    // Sea: deep teal scaled by the day, lifted by a SMALL share of the horizon
+    // so it picks up sunrise and sunset without being repainted by them. At a
+    // 0.3 share the warm horizon cancelled the teal almost exactly and the
+    // water came out neutral grey at exactly the hours it should look best.
     waterMaterial.color.setRGB(
-      0.055 * Math.max(day, 0.04) + hr * 0.3,
-      0.16 * Math.max(day, 0.04) + hg * 0.28,
-      0.21 * Math.max(day, 0.04) + hb * 0.3,
+      0.045 * Math.max(day, 0.05) + hr * 0.12,
+      0.2 * Math.max(day, 0.05) + hg * 0.12,
+      0.3 * Math.max(day, 0.05) + hb * 0.15,
     );
     waterMaterial.envMapIntensity = 0.18 + Math.max(day, 0.04) * 0.34;
 

@@ -697,6 +697,16 @@ export function leafGeometry(
 const NON_CASTING = /light|led|lens|flame|ember|glow|screen|slide|panel/i;
 
 /**
+ * Below this, in metres, a mesh receives shadows but does not cast one.
+ *
+ * The shadow map is a second full pass over everything flagged to cast, and on
+ * a headset that pass was as expensive as the main render. A bollard cap, a
+ * lamp housing or a stool leg contributes a shadow a few pixels across that
+ * nobody will ever miss, so only masses big enough to read pay for it.
+ */
+const MIN_CASTER_SIZE = 0.75;
+
+/**
  * Shadow flags for a solid prop: casts and receives.
  *
  * The renderer's shadow map and the sun's castShadow were both on while every
@@ -712,11 +722,27 @@ const NON_CASTING = /light|led|lens|flame|ember|glow|screen|slide|panel/i;
 export function shadowProp<T extends Object3D>(root: T): T {
   root.traverse((node) => {
     const mesh = node as Mesh;
-    if (mesh.isMesh !== true || NON_CASTING.test(mesh.name)) {
+    if (mesh.isMesh !== true) {
       return;
     }
-    mesh.castShadow = true;
     mesh.receiveShadow = true;
+    if (NON_CASTING.test(mesh.name)) {
+      return;
+    }
+    const geometry = mesh.geometry;
+    if (geometry.boundingBox === null) {
+      geometry.computeBoundingBox();
+    }
+    const box = geometry.boundingBox;
+    if (box === null) {
+      return;
+    }
+    const span = Math.max(
+      (box.max.x - box.min.x) * Math.abs(mesh.scale.x),
+      (box.max.y - box.min.y) * Math.abs(mesh.scale.y),
+      (box.max.z - box.min.z) * Math.abs(mesh.scale.z),
+    );
+    mesh.castShadow = span >= MIN_CASTER_SIZE;
   });
   return root;
 }

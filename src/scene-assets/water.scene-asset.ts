@@ -32,7 +32,7 @@ import {
   Group,
   Mesh,
   MeshBasicMaterial,
-  MeshPhysicalMaterial,
+  MeshStandardMaterial,
 } from '@iwsdk/core';
 import { voronoiNormalMap } from './water-texture.js';
 
@@ -47,9 +47,14 @@ const WATER_NORMAL_CHUNK = /* glsl */ `
   vec2 flowB = vec2(  6.0, -7.0) * uWaveTime;
   vec2 flowC = vec2( -3.3, -5.1) * uWaveTime;
 
-  vec3 nA = texture2D(normalMap, (vWaterWorldPos.xz + flowA) * 0.045).xyz * 2.0 - 1.0;
-  vec3 nB = texture2D(normalMap, (vWaterWorldPos.xz + flowB) * 0.071).xyz * 2.0 - 1.0;
-  vec3 nC = texture2D(normalMap, (vWaterWorldPos.xz + flowC) * 0.026).xyz * 2.0 - 1.0;
+  // Frequencies are for a MOAT as much as for open sea. Flowerbed's original
+  // values put roughly one voronoi cell every 20 m, which across a 6 m moat is
+  // a single cell - so the surface was effectively flat and mirrored the sky
+  // like polished stone. These give a ripple you can read at arm's length and
+  // still tile without repeating out to the horizon.
+  vec3 nA = texture2D(normalMap, (vWaterWorldPos.xz + flowA) * 0.18).xyz * 2.0 - 1.0;
+  vec3 nB = texture2D(normalMap, (vWaterWorldPos.xz + flowB) * 0.29).xyz * 2.0 - 1.0;
+  vec3 nC = texture2D(normalMap, (vWaterWorldPos.xz + flowC) * 0.105).xyz * 2.0 - 1.0;
 
   vec3 mapN = normalize(nA + nB + nC);
 
@@ -75,18 +80,29 @@ const WATER_FRESNEL_CHUNK = /* glsl */ `
   diffuseColor.a = clamp( max( fresnel, specLuminance ), 0.42, 1.0 );
 `;
 
-/** Exposed so DayNightSystem can tint it with the sky. */
-export const waterMaterial = new MeshPhysicalMaterial({
+/**
+ * Exposed so DayNightSystem can tint it with the sky.
+ *
+ * Standard, not Physical. This surface covers a large share of the view from
+ * almost every camera position, and each of its fragments already pays for
+ * three normal-map samples and a fresnel term. A headset capture showed the
+ * frame was GPU-bound - 94% of the renderer's time was spent blocked inside the
+ * render call while CPU-side draw submission was under 7% - and clearcoat adds
+ * a second specular lobe to every one of those fragments for a highlight that
+ * is indistinguishable once the surface is moving.
+ */
+export const waterMaterial = new MeshStandardMaterial({
   color: '#2f6f86',
-  roughness: 0.2,
+  roughness: 0.3,
   metalness: 0.0,
   transparent: true,
   normalMap: voronoiNormalMap,
   envMapIntensity: 0.75,
-  clearcoat: 0.25,
-  clearcoatRoughness: 0.16,
 });
-waterMaterial.normalScale.set(0.55, 0.55);
+// Strong on purpose. At grazing angles water is mostly reflection, and with a
+// weak normal the moat reflected the sky as an unbroken sheet and read as
+// polished stone. The ripple has to be deep enough to break that reflection up.
+waterMaterial.normalScale.set(1.15, 1.15);
 
 // Distinct cache key: the injected chunks change the program.
 waterMaterial.customProgramCacheKey = () => 'connect-site-water';

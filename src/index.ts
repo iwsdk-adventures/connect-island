@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { Fog, PCFSoftShadowMap, VisibilityState, World } from '@iwsdk/core';
+import { Fog, PCFShadowMap, VisibilityState, World } from '@iwsdk/core';
 import { frozenTimeOfDay } from './debug-time.js';
 import projectOptions from 'virtual:iwsdk-project';
 import { CameraFlightSystem } from './systems/camera-flight.js';
@@ -28,7 +28,9 @@ World.create(
   // palette.ts) and DayNightSystem owning the key light, which is what finally
   // got the sun pointing at the site rather than away from it.
   world.renderer.shadowMap.enabled = true;
-  world.renderer.shadowMap.type = PCFSoftShadowMap;
+  // PCF rather than PCFSoft: the soft variant takes many more taps per
+  // fragment, and at this map size the extra softness is not worth it on mobile.
+  world.renderer.shadowMap.type = PCFShadowMap;
 
   // Aerial perspective, keyed to the sky's horizon band so the ground disc
   // dissolves into it rather than ending in a hard rim.

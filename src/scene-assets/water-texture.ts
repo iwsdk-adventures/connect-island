@@ -11,9 +11,16 @@
  * identically in the app runtime and the editor.
  */
 
-import { DataTexture, RGBAFormat, RepeatWrapping, Texture } from '@iwsdk/core';
+import {
+  DataTexture,
+  LinearFilter,
+  LinearMipmapLinearFilter,
+  RGBAFormat,
+  RepeatWrapping,
+  Texture,
+} from '@iwsdk/core';
 
-const SIZE = 128;
+const SIZE = 256;
 const CELLS = 6;
 const BUMP = 2.6;
 
@@ -80,6 +87,15 @@ function buildVoronoiNormalMap(): Texture {
   const texture = new DataTexture(data, SIZE, SIZE, RGBAFormat);
   texture.wrapS = RepeatWrapping;
   texture.wrapT = RepeatWrapping;
+  // DataTexture defaults to NearestFilter with no mipmaps, which is what made
+  // the water show hard texels close up and shimmer at distance: the shader
+  // samples this map three times per fragment across a surface stretching to
+  // the horizon, so minification without mipmaps aliases badly and the noise
+  // crawls as the flow offsets move.
+  texture.magFilter = LinearFilter;
+  texture.minFilter = LinearMipmapLinearFilter;
+  texture.generateMipmaps = true;
+  texture.anisotropy = 4;
   texture.needsUpdate = true;
   return texture;
 }

@@ -35,7 +35,7 @@ const SHRUBS = 200;
 const TUFT_CLUMPS = 190;
 /** Blades per clump site; a lone blade reads as litter, a patch reads as grass. */
 const TUFTS_PER_CLUMP = 3;
-const TRUNK_SEGMENTS = 6;
+
 const FRONDS = 10;
 const SHRUB_LEAVES = 7;
 const TUFT_BLADES = 4;
@@ -168,15 +168,33 @@ const crown = new Object3D();
 const limb = new Object3D();
 root.add(crown);
 crown.add(limb);
+// YXZ, not the default XYZ. These leaves are placed with a single Euler that
+// carries both a droop (X) and a bearing around the crown (Y). Under XYZ the
+// yaw is applied FIRST and the droop second, about a shared world axis - so
+// every frond on a palm tipped the same way and the crown grew leaves down one
+// side only. YXZ applies the droop in the leaf's own frame and then swings it
+// around the trunk, which is what the nested pivot/leaf hierarchy does for the
+// hand-authored palms.
+limb.rotation.order = 'YXZ';
 
-// A UNIT cylinder, scaled per segment to the trunk's radius at that height.
-// Tapering the geometry itself and scaling each segment uniformly made the
-// wider bottom of every segment overhang the narrower top of the one below it -
-// a stack of open cones with a visible step and gap at each joint.
-const trunkGeometry = new CylinderGeometry(1, 1, 1, 7);
-/** Trunk radius at the base and at the crown. */
-const TRUNK_BASE_RADIUS = 0.155;
-const TRUNK_TIP_RADIUS = 0.095;
+/**
+ * One tapered cylinder per trunk, standing on its own base.
+ *
+ * The trunk was six stacked segments swept along a curve. Even sampling the
+ * radius from one continuous taper, the lean moves consecutive segment centres
+ * sideways by more than the trunk is wide near the crown, so the joints pulled
+ * apart into a ladder of separate tubes with daylight and open ends showing
+ * between them. A palm is near enough straight that a single tapered cylinder
+ * with a few degrees of tilt reads better than a curve that cannot hold
+ * together - and it is six times fewer instances.
+ *
+ * Translated so the origin is at the base, which means the tilt pivots about
+ * the foot and the tree stays planted.
+ */
+const trunkGeometry = new CylinderGeometry(0.62, 1, 1, 7);
+trunkGeometry.translate(0, 0.5, 0);
+/** Trunk radius at the base; the geometry tapers to 62% of it at the crown. */
+const TRUNK_BASE_RADIUS = 0.15;
 // Only the fronds are ever silhouetted against the sky, so only they pay for a
 // smooth outline.
 const frondGeometry = leafGeometry(2.15, 0.6, 7);
@@ -202,11 +220,7 @@ scatter(TUFT_CLUMPS, 61.3, TUFT_CLEARANCE, SITE.groundRadius * 0.32, 28, 12).for
   },
 );
 
-const trunks = new InstancedMesh(
-  trunkGeometry,
-  trunk,
-  palmSites.length * TRUNK_SEGMENTS,
-);
+const trunks = new InstancedMesh(trunkGeometry, trunk, palmSites.length);
 trunks.name = 'Palm trunks';
 const fronds = new InstancedMesh(frondGeometry, foliage, palmSites.length * FRONDS);
 fronds.name = 'Palm fronds';
@@ -230,44 +244,31 @@ palmSites.forEach(([x, z], i) => {
   // Tall enough that the crown clears a standing viewer by a good margin -
   // shorter than this and a palm reads as a potted plant, not a tree.
   const height = 3.4 + rand(i, 5.5) * 4.0;
-  // Total tilt at the crown, in radians. Applied as a smooth arc below.
-  const lean = (rand(i, 8.2) - 0.5) * 0.34;
+  // Tilt of the whole trunk, in radians, pivoting about the foot.
+  const lean = (rand(i, 8.2) - 0.5) * 0.2;
   // A 7 m palm on a 4 m palm's trunk reads as a bare dowel. Girth and crown
   // both track height, so tall trees stay in proportion instead of thinning
   // into poles with a tuft on top.
   const girth = 0.78 + (height / 7.4) * 0.5;
   root.position.set(x, 0, z);
-  root.rotation.set(0, rand(i, 12.4) * Math.PI * 2, 0);
+  // Yaw spins the whole tree; the Z tilt then leans it in that direction.
+  root.rotation.set(0, rand(i, 12.4) * Math.PI * 2, lean);
 
-  // The trunk is a smooth arc sampled at segment midpoints, not a chain of
-  // hinges: each segment sits ON the curve and is rotated to its TANGENT. An
-  // earlier version offset each segment by a fixed step and left the rotation
-  // to accumulate, which splayed the segments into a visible staircase from
-  // above. Tilt grows linearly with height, so lateral drift is quadratic.
-  const drift = (h: number): number => (lean * h * h) / (2 * height);
-  const tilt = (h: number): number => (lean * h) / height;
+  limb.position.set(0, 0, 0);
+  limb.rotation.set(0, 0, 0);
+  limb.scale.set(
+    TRUNK_BASE_RADIUS * girth,
+    height,
+    TRUNK_BASE_RADIUS * girth,
+  );
+  crown.position.set(0, 0, 0);
+  crown.rotation.set(0, 0, 0);
+  root.updateWorldMatrix(false, true);
+  trunks.setMatrixAt(trunkIndex, limb.matrixWorld);
+  trunkIndex += 1;
 
-  for (let s = 0; s < TRUNK_SEGMENTS; s += 1) {
-    const segment = height / TRUNK_SEGMENTS;
-    const mid = segment * (s + 0.5);
-    crown.position.set(drift(mid), mid, 0);
-    crown.rotation.set(0, 0, tilt(mid));
-    limb.position.set(0, 0, 0);
-    limb.rotation.set(0, 0, 0);
-    // Radius sampled from the same continuous taper the next segment will
-    // sample, so consecutive segments meet at nearly the same width; the 6%
-    // length overlap covers the rest.
-    const f = (s + 0.5) / TRUNK_SEGMENTS;
-    const radius =
-      (TRUNK_BASE_RADIUS + (TRUNK_TIP_RADIUS - TRUNK_BASE_RADIUS) * f) * girth;
-    limb.scale.set(radius, segment * 1.06, radius);
-    root.updateWorldMatrix(false, true);
-    trunks.setMatrixAt(trunkIndex, limb.matrixWorld);
-    trunkIndex += 1;
-  }
-
-  crown.position.set(drift(height), height, 0);
-  crown.rotation.set(0, 0, tilt(height));
+  crown.position.set(0, height, 0);
+  crown.rotation.set(0, 0, 0);
   for (let f = 0; f < FRONDS; f += 1) {
     // Three droop bands: two arching out, one nearly horizontal, one young and
     // still upright. A single droop angle gives every palm the same umbrella.
@@ -342,14 +343,15 @@ tuftSites.forEach(([x, z], i) => {
 trunks.instanceMatrix.needsUpdate = true;
 fronds.instanceMatrix.needsUpdate = true;
 shrubs.instanceMatrix.needsUpdate = true;
-shrubs.castShadow = true;
 tufts.instanceMatrix.needsUpdate = true;
 trunks.computeBoundingSphere();
 fronds.computeBoundingSphere();
 shrubs.computeBoundingSphere();
 tufts.computeBoundingSphere();
+// Trunks cast; fronds do not. The crowns are ~1200 instanced leaves and their
+// shadows are a faint dapple, but they were the largest single contributor to
+// the shadow pass.
 trunks.castShadow = true;
-fronds.castShadow = true;
 
 vegetation.add(trunks, fronds, shrubs, tufts);
 

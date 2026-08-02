@@ -1,6 +1,12 @@
 <!--
   Stage schedule board, mounted beside the riser. Session titles are this
   site's own illustrative programme, not Meta's published agenda.
+
+  Landscape, and deliberately so: it hangs on the same timber board as the
+  entrance sign, which is 3.3 x 1.75 at full scale. The earlier portrait card
+  ran to roughly three metres tall against a board of one and a third, so it
+  overhung top and bottom. 700 x 356 matches the board's proportions, and the
+  four sessions run in two columns instead of one long list.
 -->
 <style>
   @font-face {
@@ -21,16 +27,26 @@
 
   .board {
     flex-direction: column;
+    justify-content: space-between;
     font-family: "DM Sans";
-    width: 400px;
+    width: 700px;
+    height: 356px;
     background-color: #1a1038;
-    border-radius: 22px;
-    border-width: 2px;
+    border-radius: 26px;
+    border-width: 3px;
     border-color: #6d4bc4;
     padding-top: 26px;
-    padding-bottom: 26px;
-    padding-left: 28px;
-    padding-right: 28px;
+    padding-bottom: 22px;
+    padding-left: 34px;
+    padding-right: 34px;
+  }
+  .head {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+  .head-left {
+    flex-direction: column;
   }
   .eyebrow {
     font-size: 14px;
@@ -39,81 +55,82 @@
     letter-spacing: 2px;
   }
   .title {
-    font-size: 34px;
+    font-size: 36px;
     font-weight: 700;
     color: #ffffff;
     line-height: 1.1;
-    margin-top: 10px;
+    margin-top: 6px;
+  }
+  .venue {
+    font-size: 15px;
+    font-weight: 500;
+    color: #b98cff;
+  }
+  .columns {
+    flex-direction: row;
+    justify-content: space-between;
+    margin-top: 14px;
+  }
+  .column {
+    flex-direction: column;
+    width: 305px;
   }
   .slot {
     flex-direction: row;
     align-items: flex-start;
-    margin-top: 18px;
+    margin-top: 14px;
   }
   .time {
-    font-size: 15px;
+    font-size: 17px;
     font-weight: 700;
     color: #b98cff;
     width: 74px;
-    margin-top: 2px;
-  }
-  .slot-body {
-    flex-direction: column;
-    width: 262px;
+    margin-top: 1px;
   }
   .slot-head {
-    font-size: 16px;
+    font-size: 18px;
     font-weight: 700;
     color: #ffffff;
-    line-height: 1.3;
-  }
-  .slot-text {
-    font-size: 14px;
-    font-weight: 400;
-    color: #b3a6d4;
-    line-height: 1.4;
-    margin-top: 2px;
+    line-height: 1.25;
+    width: 226px;
   }
   .footer {
     font-size: 13px;
     font-weight: 500;
     color: #8f7fbb;
-    margin-top: 24px;
+    margin-top: 12px;
   }
 </style>
 <div class="board">
-  <div class="eyebrow">ON THIS STAGE</div>
-  <div class="title">Short sessions</div>
-
-  <div class="slot">
-    <div class="time">10:00</div>
-    <div class="slot-body">
-      <div class="slot-head">Your first WebXR scene</div>
-      <div class="slot-text">From npm create to a headset in ten minutes.</div>
+  <div class="head">
+    <div class="head-left">
+      <div class="eyebrow">ON THIS STAGE</div>
+      <div class="title">Short sessions</div>
     </div>
+    <div class="venue">Session stage</div>
   </div>
 
-  <div class="slot">
-    <div class="time">11:30</div>
-    <div class="slot-body">
-      <div class="slot-head">Hands, rays and grabs</div>
-      <div class="slot-text">Interaction patterns that feel right in VR.</div>
+  <div class="columns">
+    <div class="column">
+      <div class="slot">
+        <div class="time">10:00</div>
+        <div class="slot-head">Your first WebXR scene</div>
+      </div>
+      <div class="slot">
+        <div class="time">11:30</div>
+        <div class="slot-head">Hands, rays and grabs</div>
+      </div>
     </div>
-  </div>
 
-  <div class="slot">
-    <div class="time">14:00</div>
-    <div class="slot-body">
-      <div class="slot-head">Physics without the pain</div>
-      <div class="slot-text">Havok in a web worker, and when not to use it.</div>
-    </div>
-  </div>
-
-  <div class="slot">
-    <div class="time">15:30</div>
-    <div class="slot-body">
-      <div class="slot-head">Agents in the loop</div>
-      <div class="slot-text">Letting an AI drive, test and debug your scene.</div>
+    <div class="column">
+      <div class="slot">
+        <div class="time">14:00</div>
+        <div class="slot-head">Physics without the pain</div>
+      </div>
+      <div class="slot">
+        <div class="time">15:30</div>
+        <div class="slot-head">Agents in the loop</div>
+      </div>
     </div>
   </div>
 

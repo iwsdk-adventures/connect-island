@@ -642,9 +642,9 @@
       "name": "Entrance sign",
       "transform": {
         "position": [
-          -6.2,
+          -6.161,
           2.3,
-          24.6
+          24.781
         ],
         "rotationDeg": [
           0,
@@ -1118,111 +1118,16 @@
       "name": "Stage schedule sign",
       "transform": {
         "position": [
-          10.329,
-          1.7,
-          -12.21
+          10.264,
+          1.702,
+          -12.173
         ],
         "rotationDeg": [
           0,
           300,
           0
         ],
-        "scale": 0.4
-      }
-    },
-    {
-      "content": {
-        "asset": "bench",
-        "type": "asset"
-      },
-      "id": "stage-bench-0",
-      "transform": {
-        "position": [
-          9.923,
-          0,
-          -9.339
-        ],
-        "rotationDeg": [
-          0,
-          -92.88,
-          0
-        ]
-      }
-    },
-    {
-      "content": {
-        "asset": "bench",
-        "type": "asset"
-      },
-      "id": "stage-bench-1",
-      "transform": {
-        "position": [
-          9.8,
-          0,
-          -7.936
-        ],
-        "rotationDeg": [
-          0,
-          -79.26,
-          0
-        ]
-      }
-    },
-    {
-      "content": {
-        "asset": "bench",
-        "type": "asset"
-      },
-      "id": "stage-bench-2",
-      "transform": {
-        "position": [
-          11.773,
-          0,
-          -4.519
-        ],
-        "rotationDeg": [
-          0,
-          -40.73,
-          0
-        ]
-      }
-    },
-    {
-      "content": {
-        "asset": "bench",
-        "type": "asset"
-      },
-      "id": "stage-bench-3",
-      "transform": {
-        "position": [
-          13.049,
-          0,
-          -3.924
-        ],
-        "rotationDeg": [
-          0,
-          -27.13,
-          0
-        ]
-      }
-    },
-    {
-      "content": {
-        "asset": "bench",
-        "type": "asset"
-      },
-      "id": "stage-bench-4",
-      "transform": {
-        "position": [
-          11.3,
-          0,
-          -8.511
-        ],
-        "rotationDeg": [
-          0,
-          -82.98,
-          0
-        ]
+        "scale": 0.31
       }
     },
     {
@@ -1578,6 +1483,50 @@
         ]
       },
       "framingRole": "support"
+    },
+    {
+      "content": {
+        "asset": "bench",
+        "castShadow": true,
+        "receiveShadow": true,
+        "type": "asset"
+      },
+      "id": "stage-bench-0",
+      "name": "Stage bench left",
+      "transform": {
+        "position": [
+          13.191,
+          0,
+          -4.152
+        ],
+        "rotationDeg": [
+          0,
+          -26.89,
+          0
+        ]
+      }
+    },
+    {
+      "content": {
+        "asset": "bench",
+        "castShadow": true,
+        "receiveShadow": true,
+        "type": "asset"
+      },
+      "id": "stage-bench-1",
+      "name": "Stage bench right",
+      "transform": {
+        "position": [
+          10.191,
+          0,
+          -9.348
+        ],
+        "rotationDeg": [
+          0,
+          -93.11,
+          0
+        ]
+      }
     }
   ],
   "player": {
