@@ -23,6 +23,7 @@
  */
 
 import { frozenTimeOfDay } from '../debug-time.js';
+import { SHADOW_MODE } from '../render-config.js';
 import {
   brandMagenta,
   brandViolet,
@@ -216,7 +217,9 @@ export class DayNightSystem extends createSystem(
     // way Three expects them, and it is one object either way.
     this.sun = new DirectionalLight();
     this.sun.name = 'Sun';
-    this.sun.castShadow = true;
+    // Only a real shadow map needs the light to cast; blob shadows are geometry
+    // and 'none' is the control.
+    this.sun.castShadow = SHADOW_MODE === 'real';
     // 1024 is 4x less shadow-map fill than 2048 and, over a 50 m frustum on a
     // headset panel, the difference is not visible.
     this.sun.shadow.mapSize.set(1024, 1024);

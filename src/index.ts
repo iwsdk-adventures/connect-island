@@ -6,6 +6,8 @@
  */
 
 import { Fog, PCFShadowMap, VisibilityState, World } from '@iwsdk/core';
+import { SHADOW_MODE } from './render-config.js';
+import { BlobShadowSystem } from './systems/blob-shadows.js';
 import { frozenTimeOfDay } from './debug-time.js';
 import projectOptions from 'virtual:iwsdk-project';
 import { CameraFlightSystem } from './systems/camera-flight.js';
@@ -20,14 +22,15 @@ World.create(
   projectOptions,
 ).then((world) => {
   // IWSDK leaves the renderer's shadow map off and offers no project-config
-  // switch for it. Only the sun casts, so this is a single extra pass - drop it
-  // if device frame time suffers.
+  // switch for it. Turning it on costs a second pass over every casting mesh
+  // plus a depth comparison per lit fragment on every receiver, so it is behind
+  // a switch while the headset budget is being worked out - see render-config.
   //
-  // This only does anything in combination with two other things: the shadow
+  // It also only does anything in combination with two other things: the shadow
   // flags the asset prototypes set (see shadowProp / shadowReceiver in
   // palette.ts) and DayNightSystem owning the key light, which is what finally
   // got the sun pointing at the site rather than away from it.
-  world.renderer.shadowMap.enabled = true;
+  world.renderer.shadowMap.enabled = SHADOW_MODE === 'real';
   // PCF rather than PCFSoft: the soft variant takes many more taps per
   // fragment, and at this map size the extra softness is not worth it on mobile.
   world.renderer.shadowMap.type = PCFShadowMap;
@@ -42,6 +45,7 @@ World.create(
   world.registerSystem(MonumentSystem);
   world.registerSystem(WaterSystem);
   world.registerSystem(DayNightSystem);
+  world.registerSystem(BlobShadowSystem);
 
   bindLanding(world);
 });
