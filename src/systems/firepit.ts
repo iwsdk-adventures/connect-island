@@ -17,12 +17,14 @@
 
 import {
   Color,
+  type Entity,
   InstancedMesh,
   Object3D,
   PointLightComponent,
   createSystem,
 } from '@iwsdk/core';
 import { FirePit } from '../components/site-components.js';
+import { mirrorQuery } from './query-list.js';
 
 interface FlameData {
   w: number;
@@ -49,6 +51,7 @@ export class FirePitSystem extends createSystem({
   private hot!: Color;
   private cool!: Color;
   private tint!: Color;
+  private readonly pitList: Entity[] = [];
 
   init(): void {
     this.scratch = new Object3D();
@@ -58,6 +61,7 @@ export class FirePitSystem extends createSystem({
     this.cool = new Color('#ff8b3e');
     this.tint = new Color();
 
+    this.cleanupFuncs.push(...mirrorQuery(this.queries.pits, this.pitList));
     this.cleanupFuncs.push(
       this.queries.pits.subscribe(
         'qualify',
@@ -87,7 +91,8 @@ export class FirePitSystem extends createSystem({
   }
 
   update(_delta: number, time: number): void {
-    for (const entity of this.queries.pits.entities) {
+    for (let i = 0; i < this.pitList.length; i += 1) {
+      const entity = this.pitList[i];
       const root = entity.object3D;
       if (root == null) {
         continue;

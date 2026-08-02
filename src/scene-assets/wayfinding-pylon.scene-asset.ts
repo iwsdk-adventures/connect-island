@@ -8,7 +8,7 @@
 
 import { CylinderGeometry, Group, Mesh } from '@iwsdk/core';
 import {
-  brandDeepBlue,
+  brandScreenLit,
   brushedChrome,
   creamShell,
   graphite,
@@ -34,7 +34,7 @@ body.name = 'Pylon body';
 pylon.add(body);
 
 // Recessed screen face.
-const screen = new Mesh(roundedSlabGeometry(0.52, 1.85, 0.03, 0.05), brandDeepBlue);
+const screen = new Mesh(roundedSlabGeometry(0.52, 1.85, 0.03, 0.05), brandScreenLit);
 screen.position.set(0, 0.16 + HEIGHT * 0.62, -0.152);
 screen.name = 'Pylon screen';
 pylon.add(screen);

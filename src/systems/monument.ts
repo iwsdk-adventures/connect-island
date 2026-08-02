@@ -4,13 +4,17 @@
  * which is what makes the iridescent sweep move across the chrome.
  */
 
-import { createSystem, Object3D } from '@iwsdk/core';
+import { createSystem, type Entity, Object3D } from '@iwsdk/core';
 import { Monument } from '../components/site-components.js';
+import { mirrorQuery } from './query-list.js';
 
 export class MonumentSystem extends createSystem({
   monuments: { required: [Monument] },
 }) {
+  private readonly monumentList: Entity[] = [];
+
   init(): void {
+    this.cleanupFuncs.push(...mirrorQuery(this.queries.monuments, this.monumentList));
     this.cleanupFuncs.push(
       this.queries.monuments.subscribe(
         'qualify',
@@ -27,7 +31,8 @@ export class MonumentSystem extends createSystem({
   }
 
   update(delta: number): void {
-    for (const entity of this.queries.monuments.entities) {
+    for (let i = 0; i < this.monumentList.length; i += 1) {
+      const entity = this.monumentList[i];
       const loop = entity.object3D?.userData.infinityLoop as
         | Object3D
         | null

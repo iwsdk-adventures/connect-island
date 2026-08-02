@@ -152,9 +152,19 @@ export class CameraFlightSystem extends createSystem({}) {
     // releasing the rig hands the camera to the browser orbit controls, which
     // then drive it from the project config and ignore any one-shot placement.
     if (frozenTimeOfDay() !== null) {
-      this.world.player.position.set(...DEBUG_REVIEW_EYE);
+      // Indexed rather than spread: `set(...tuple)` builds an arguments array
+      // every frame, and this branch runs every frame while a time is pinned.
+      this.world.player.position.set(
+        DEBUG_REVIEW_EYE[0],
+        DEBUG_REVIEW_EYE[1],
+        DEBUG_REVIEW_EYE[2],
+      );
       this.world.camera.position.set(0, 0, 0);
-      this.world.camera.lookAt(...DEBUG_REVIEW_TARGET);
+      this.world.camera.lookAt(
+        DEBUG_REVIEW_TARGET[0],
+        DEBUG_REVIEW_TARGET[1],
+        DEBUG_REVIEW_TARGET[2],
+      );
       return;
     }
 

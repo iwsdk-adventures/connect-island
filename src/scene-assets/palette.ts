@@ -376,6 +376,25 @@ export const brandDeepBlue = new MeshStandardMaterial({
   emissiveIntensity: 0.5,
 });
 
+/**
+ * The pylon's screen face. Emissive enough to read as a lit display rather than
+ * a painted slab: a wayfinding totem whose screen is darker than the housing
+ * around it reads as switched off, which is the opposite of what it is for.
+ */
+export const brandScreenLit = new MeshStandardMaterial({
+  color: '#12306e',
+  roughness: 0.34,
+  metalness: 0.05,
+  emissive: '#2a68d8',
+  emissiveIntensity: 1.35,
+});
+
+/** Fixture lenses. Unlit and exempt from tone mapping so they stay hot. */
+export const fixtureLens = new MeshBasicMaterial({
+  color: '#cfe4ff',
+  toneMapped: false,
+});
+
 export const brandBlueGlow = new MeshStandardMaterial({
   color: '#1d4ed8',
   roughness: 0.3,

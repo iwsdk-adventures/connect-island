@@ -13,10 +13,11 @@ import {
   Group,
   Mesh,
   TorusGeometry,
+  Vector3,
 } from '@iwsdk/core';
 import {
   arcWallGeometry,
-  brandBlueGlow,
+  fixtureLens,
   brandScreenTwoSided,
   brandVioletTwoSided,
   brushedChrome,
@@ -205,29 +206,48 @@ for (let i = 0; i < MAST_ANGLES.length; i += 1) {
   stage.add(brace);
 }
 
-// Fixtures across the downstage arc.
+// Fixtures across the downstage arc, each AIMED at the lectern.
+//
+// They used to hang straight down in a row, which reads as a lighting rig that
+// has not been focused - and the two that carry the SpotLights were aiming
+// their light at the podium while their bodies pointed at the floor. The body
+// is a cylinder along local -Y, so the yoke and can are parented to a pivot
+// whose -Y is rotated onto the direction to the target.
 const fixtureBody = new CylinderGeometry(0.13, 0.17, 0.32, 14);
-const fixtureLens = new CylinderGeometry(0.17, 0.17, 0.04, 14);
+const fixtureLensGeometry = new CylinderGeometry(0.17, 0.17, 0.04, 14);
 const fixtureYoke = new CylinderGeometry(0.03, 0.03, 0.22, 8);
+const LECTERN = new Vector3(-1.35, RISER_TOP + 0.9, -1.7);
+const DOWN = new Vector3(0, -1, 0);
+
 for (let i = 0; i < 5; i += 1) {
   const angle = Math.PI * (0.72 + i * 0.14);
   const x = Math.sin(angle) * TRUSS_RADIUS;
   const z = Math.cos(angle) * TRUSS_RADIUS;
 
+  // The yoke still hangs vertically off the rail; only the can below it swivels.
   const yoke = new Mesh(fixtureYoke, darkMetal);
   yoke.position.set(x, TRUSS_Y - 0.12, z);
   yoke.name = `Stage fixture yoke ${i}`;
   stage.add(yoke);
 
-  const body = new Mesh(fixtureBody, darkMetal);
-  body.position.set(x, TRUSS_Y - 0.38, z);
-  body.name = `Stage fixture ${i}`;
-  stage.add(body);
+  const pivot = new Group();
+  pivot.position.set(x, TRUSS_Y - 0.26, z);
+  pivot.quaternion.setFromUnitVectors(
+    DOWN,
+    new Vector3().subVectors(LECTERN, pivot.position).normalize(),
+  );
+  pivot.name = `Stage fixture ${i}`;
+  stage.add(pivot);
 
-  const lens = new Mesh(fixtureLens, brandBlueGlow);
-  lens.position.set(x, TRUSS_Y - 0.55, z);
+  const body = new Mesh(fixtureBody, darkMetal);
+  body.position.y = -0.16;
+  body.name = `Stage fixture can ${i}`;
+  pivot.add(body);
+
+  const lens = new Mesh(fixtureLensGeometry, fixtureLens);
+  lens.position.y = -0.33;
   lens.name = `Stage fixture lens ${i}`;
-  stage.add(lens);
+  pivot.add(lens);
 }
 
 /* --------------------------------------------------------------------- PA */

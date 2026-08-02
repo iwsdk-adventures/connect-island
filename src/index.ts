@@ -8,6 +8,7 @@
 import { Fog, PCFShadowMap, VisibilityState, World } from '@iwsdk/core';
 import { SHADOW_MODE } from './render-config.js';
 import { BlobShadowSystem } from './systems/blob-shadows.js';
+import { StageScreenLayerSystem } from './systems/stage-screen-layer.js';
 import { frozenTimeOfDay } from './debug-time.js';
 import projectOptions from 'virtual:iwsdk-project';
 import { CameraFlightSystem } from './systems/camera-flight.js';
@@ -46,6 +47,7 @@ World.create(
   world.registerSystem(WaterSystem);
   world.registerSystem(DayNightSystem);
   world.registerSystem(BlobShadowSystem);
+  world.registerSystem(StageScreenLayerSystem);
 
   bindLanding(world);
 });

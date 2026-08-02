@@ -21,3 +21,15 @@
  *   what the other two actually cost.
  */
 export const SHADOW_MODE: 'real' | 'blob' | 'none' = 'blob';
+
+/**
+ * Render the stage slide as a WebXR cylinder composition layer instead of a
+ * flat panel hung in front of the curved screen.
+ *
+ * The layer is curved, so it lies on the screen rather than cutting a chord
+ * across it, and its content is composited by the device at the layer's own
+ * resolution rather than being resampled through the eye buffers - which is
+ * what makes small type readable in a headset. Behind a switch because layer
+ * support is a session capability, and the flat panel is the fallback.
+ */
+export const USE_STAGE_SCREEN_LAYER = true;

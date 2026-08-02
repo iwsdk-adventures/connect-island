@@ -4,13 +4,17 @@
  * riser. Each light carries its own phase so the set never moves in lockstep.
  */
 
-import { createSystem, SpotLightComponent } from '@iwsdk/core';
+import { createSystem, type Entity, SpotLightComponent } from '@iwsdk/core';
 import { StageLight } from '../components/site-components.js';
+import { mirrorQuery } from './query-list.js';
 
 export class StageLightSystem extends createSystem({
   lights: { required: [StageLight, SpotLightComponent] },
 }) {
+  private readonly lightList: Entity[] = [];
+
   init(): void {
+    this.cleanupFuncs.push(...mirrorQuery(this.queries.lights, this.lightList));
     this.cleanupFuncs.push(
       this.queries.lights.subscribe(
         'qualify',
@@ -27,7 +31,8 @@ export class StageLightSystem extends createSystem({
   }
 
   update(_delta: number, time: number): void {
-    for (const entity of this.queries.lights.entities) {
+    for (let i = 0; i < this.lightList.length; i += 1) {
+      const entity = this.lightList[i];
       const root = entity.object3D;
       if (root == null) {
         continue;

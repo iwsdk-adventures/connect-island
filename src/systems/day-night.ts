@@ -23,6 +23,7 @@
  */
 
 import { frozenTimeOfDay } from '../debug-time.js';
+import { mirrorQuery } from './query-list.js';
 import { SHADOW_MODE } from '../render-config.js';
 import {
   brandMagenta,
@@ -37,6 +38,7 @@ import {
 import {
   Color,
   DirectionalLight,
+  type Entity,
   DomeGradient,
   HemisphereLightComponent,
   IBLGradient,
@@ -138,6 +140,12 @@ const KEYS: DayKey[] = [
 
 // Must stay inside the light's shadow-camera far plane (130). At 90 with a far
 // of 70 the whole scene sat behind the shadow frustum and nothing cast at all.
+/**
+ * The sun is a DirectionalLight, so only its DIRECTION is used - the distance
+ * is arbitrary. It mattered once, when it had to sit inside its own shadow
+ * camera's frustum; with the shadow map behind a switch it is nothing but a
+ * unit vector scaled to somewhere well outside the site.
+ */
 const SUN_DISTANCE = 55;
 /** Half-width of the sun's shadow frustum. The venue's outer radius is 22.7. */
 const SHADOW_EXTENT = 25;
@@ -197,6 +205,10 @@ export class DayNightSystem extends createSystem(
   };
   private fogColor!: Color;
   private sun!: DirectionalLight;
+  // Query membership mirrored into arrays; see query-list.ts.
+  private readonly domeList: Entity[] = [];
+  private readonly hemiList: Entity[] = [];
+  private readonly iblList: Entity[] = [];
   /** The IBL is baked once; after that only its intensity moves. */
   private iblPrimed = false;
   private sunIntensity = 0;
@@ -239,6 +251,12 @@ export class DayNightSystem extends createSystem(
     shadowCamera.top = SHADOW_EXTENT;
     shadowCamera.bottom = -SHADOW_EXTENT;
     shadowCamera.updateProjectionMatrix();
+    this.cleanupFuncs.push(
+      ...mirrorQuery(this.queries.domes, this.domeList),
+      ...mirrorQuery(this.queries.hemis, this.hemiList),
+      ...mirrorQuery(this.queries.ibls, this.iblList),
+    );
+
     this.world.scene.add(this.sun);
     // A DirectionalLight aims at its target's world position, so the target has
     // to be in the graph for its matrix to be updated at all.
@@ -319,7 +337,8 @@ export class DayNightSystem extends createSystem(
     // The background dome updates EVERY frame, and costs nothing to do so:
     // EnvironmentSystem's dome path only writes uniforms on the dome mesh's
     // material. That is what keeps the sky transition smooth.
-    for (const entity of this.queries.domes.entities) {
+    for (let i = 0; i < this.domeList.length; i += 1) {
+      const entity = this.domeList[i];
       const sky = entity.getVectorView(DomeGradient, 'sky');
       const equator = entity.getVectorView(DomeGradient, 'equator');
       const ground = entity.getVectorView(DomeGradient, 'ground');
@@ -370,7 +389,8 @@ export class DayNightSystem extends createSystem(
     if (this.iblPrimed) {
       return;
     }
-    for (const entity of this.queries.ibls.entities) {
+    for (let i = 0; i < this.iblList.length; i += 1) {
+      const entity = this.iblList[i];
       entity.getVectorView(IBLGradient, 'sky').set(NEUTRAL_IBL.sky, 0);
       entity.getVectorView(IBLGradient, 'equator').set(NEUTRAL_IBL.equator, 0);
       entity.getVectorView(IBLGradient, 'ground').set(NEUTRAL_IBL.ground, 0);
@@ -458,7 +478,8 @@ export class DayNightSystem extends createSystem(
     this.sun.color.setRGB(this.blend.sun[0], this.blend.sun[1], this.blend.sun[2]);
     this.sun.intensity = Math.max(this.sunIntensity, 0);
 
-    for (const entity of this.queries.hemis.entities) {
+    for (let i = 0; i < this.hemiList.length; i += 1) {
+      const entity = this.hemiList[i];
       entity.getVectorView(HemisphereLightComponent, 'skyColor').set(this.blend.hemiSky, 0);
       entity
         .getVectorView(HemisphereLightComponent, 'groundColor')
