@@ -431,65 +431,17 @@
             1
           ],
           "decay": 2,
-          "distance": 16,
-          "intensity": 18
+          "distance": 15,
+          "intensity": 34
         }
       },
       "id": "pavilion-light-a",
-      "name": "Pavilion light A",
-      "transform": {
-        "position": [
-          3.118,
-          3.5,
-          1.8
-        ]
-      }
-    },
-    {
-      "components": {
-        "com.iwsdk.components.PointLight": {
-          "color": [
-            1,
-            0.93,
-            0.82,
-            1
-          ],
-          "decay": 2,
-          "distance": 16,
-          "intensity": 18
-        }
-      },
-      "id": "pavilion-light-b",
-      "name": "Pavilion light B",
+      "name": "Pavilion light",
       "transform": {
         "position": [
           0,
-          3.5,
-          -3.6
-        ]
-      }
-    },
-    {
-      "components": {
-        "com.iwsdk.components.PointLight": {
-          "color": [
-            1,
-            0.93,
-            0.82,
-            1
-          ],
-          "decay": 2,
-          "distance": 16,
-          "intensity": 18
-        }
-      },
-      "id": "pavilion-light-c",
-      "name": "Pavilion light C",
-      "transform": {
-        "position": [
-          -3.118,
-          3.5,
-          1.8
+          3.6,
+          0
         ]
       }
     },
@@ -515,68 +467,6 @@
         "rotationDeg": [
           0,
           0,
-          0
-        ]
-      }
-    },
-    {
-      "components": {
-        "com.iwsdk.components.SpotLight": {
-          "angleDeg": 42,
-          "color": [
-            0.75,
-            0.85,
-            1,
-            1
-          ],
-          "decay": 2,
-          "distance": 6,
-          "intensity": 7,
-          "penumbra": 0.55
-        }
-      },
-      "id": "monument-spot-right",
-      "name": "Monument uplight right",
-      "transform": {
-        "position": [
-          1.4,
-          0.25,
-          17.6
-        ],
-        "rotationDeg": [
-          46.2,
-          41.3,
-          0
-        ]
-      }
-    },
-    {
-      "components": {
-        "com.iwsdk.components.SpotLight": {
-          "angleDeg": 42,
-          "color": [
-            0.75,
-            0.85,
-            1,
-            1
-          ],
-          "decay": 2,
-          "distance": 6,
-          "intensity": 7,
-          "penumbra": 0.55
-        }
-      },
-      "id": "monument-spot-left",
-      "name": "Monument uplight left",
-      "transform": {
-        "position": [
-          -1.4,
-          0.25,
-          17.6
-        ],
-        "rotationDeg": [
-          46.2,
-          -41.3,
           0
         ]
       }
@@ -1049,40 +939,6 @@
     },
     {
       "components": {
-        "StageLight": {
-          "phase": 4.2
-        },
-        "com.iwsdk.components.SpotLight": {
-          "angleDeg": 26,
-          "color": [
-            0.85,
-            0.8,
-            1,
-            1
-          ],
-          "decay": 2,
-          "distance": 22,
-          "intensity": 60,
-          "penumbra": 0.45
-        }
-      },
-      "id": "stage-spot-c",
-      "name": "Stage spot C",
-      "transform": {
-        "position": [
-          15.774,
-          4.9,
-          -11.878
-        ],
-        "rotationDeg": [
-          -72,
-          142,
-          0
-        ]
-      }
-    },
-    {
-      "components": {
         "LocomotionEnvironment": {}
       },
       "content": {
@@ -1401,68 +1257,6 @@
         "rotationDeg": [
           0,
           -120.0,
-          0
-        ]
-      }
-    },
-    {
-      "components": {
-        "com.iwsdk.components.SpotLight": {
-          "angleDeg": 17,
-          "color": [
-            1,
-            0.95,
-            0.86,
-            1
-          ],
-          "decay": 2,
-          "distance": 14,
-          "intensity": 60,
-          "penumbra": 0.32
-        }
-      },
-      "id": "stage-key-left",
-      "name": "Stage key light",
-      "transform": {
-        "position": [
-          11.39,
-          4.3,
-          -8.69
-        ],
-        "rotationDeg": [
-          -117.4,
-          -44.1,
-          0
-        ]
-      }
-    },
-    {
-      "components": {
-        "com.iwsdk.components.SpotLight": {
-          "angleDeg": 17,
-          "color": [
-            1,
-            0.95,
-            0.86,
-            1
-          ],
-          "decay": 2,
-          "distance": 14,
-          "intensity": 60,
-          "penumbra": 0.32
-        }
-      },
-      "id": "stage-key-right",
-      "name": "Stage key light",
-      "transform": {
-        "position": [
-          13.221,
-          4.3,
-          -5.519
-        ],
-        "rotationDeg": [
-          -64.6,
-          -25.15,
           0
         ]
       }

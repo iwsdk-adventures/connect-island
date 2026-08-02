@@ -8,10 +8,15 @@
  * them to be the brightest thing around, so the darkest key here is genuinely
  * dark and lit almost entirely by the venue's own fittings.
  *
- * Both the visible sky and the IBL are gradients so they can be animated
- * together. A fixed HDR capture was tried first and fights a day-night cycle
- * directly: at midnight the materials still receive a sunset, and reflective
- * surfaces show a place that is not there.
+ * The visible sky is a gradient dome updated every frame - that path only
+ * writes uniforms, so it is free and the transition is perfectly smooth.
+ *
+ * The lighting is entirely analytic: a directional sun and a hemisphere light,
+ * both lerped per frame. There is no animated IBL. A gradient IBL cannot be
+ * changed without a PMREM convolution plus a render-target reallocation, and
+ * doing that per frame was one of the costs that put the headset over budget.
+ * A neutral one is baked once, purely so metal and water have something to
+ * reflect, and only its INTENSITY tracks the cycle - which is a free uniform.
  *
  * Colours are authored in LINEAR space because that is what the gradient and
  * light components consume — no sRGB conversion is involved anywhere here.
@@ -92,41 +97,41 @@ const KEYS: DayKey[] = [
   // through it. The floor is low but never zero: the ground plane still has to
   // read, and the venue's own fittings carry it.
   key(0.0, [0.006, 0.011, 0.032], [0.03, 0.05, 0.1], [0.012, 0.014, 0.02],
-      [0.3, 0.4, 0.68], 0.1, [0.08, 0.11, 0.24], [0.05, 0.052, 0.062], 0.34, 0.14,
+      [0.3, 0.4, 0.68], 0.1, [0.08, 0.11, 0.24], [0.05, 0.052, 0.062], 1.51, 0.14,
       [0.035, 0.05, 0.1]),
   key(0.08, [0.006, 0.012, 0.034], [0.035, 0.055, 0.11], [0.013, 0.015, 0.022],
-      [0.3, 0.4, 0.68], 0.1, [0.08, 0.11, 0.24], [0.05, 0.052, 0.062], 0.34, 0.14,
+      [0.3, 0.4, 0.68], 0.1, [0.08, 0.11, 0.24], [0.05, 0.052, 0.062], 1.51, 0.14,
       [0.038, 0.052, 0.105]),
   key(0.2, [0.03, 0.08, 0.24], [0.5, 0.28, 0.2], [0.05, 0.048, 0.05],
-      [1.0, 0.5, 0.28], 0.8, [0.14, 0.2, 0.38], [0.08, 0.07, 0.06], 0.26, 0.34,
+      [1.0, 0.5, 0.28], 0.8, [0.4, 0.27, 0.23], [0.12, 0.09, 0.07], 1.154, 0.34,
       [0.42, 0.32, 0.3]),
   // Mid-morning kept properly blue; interpolating straight from dawn to noon
   // passed through a dead neutral grey.
   key(0.34, [0.1, 0.26, 0.58], [0.64, 0.72, 0.82], [0.27, 0.25, 0.2],
-      [1.0, 0.88, 0.72], 2.7, [0.32, 0.44, 0.7], [0.31, 0.27, 0.19], 0.26, 0.4,
+      [1.0, 0.88, 0.72], 2.7, [0.32, 0.44, 0.7], [0.31, 0.27, 0.19], 1.154, 0.4,
       [0.64, 0.7, 0.8]),
   // Noon. Sun, hemisphere and IBL are all pulled well down from the first pass,
   // where the combination clipped sand, paving and the cream walls to white.
   key(0.5, [0.11, 0.3, 0.66], [0.68, 0.78, 0.88], [0.34, 0.31, 0.25],
-      [1.0, 0.95, 0.83], 3.1, [0.34, 0.46, 0.7], [0.36, 0.31, 0.22], 0.26, 0.42,
+      [1.0, 0.95, 0.83], 3.1, [0.34, 0.46, 0.7], [0.36, 0.31, 0.22], 1.154, 0.42,
       [0.68, 0.76, 0.86]),
   key(0.66, [0.11, 0.25, 0.52], [0.78, 0.68, 0.58], [0.27, 0.24, 0.17],
-      [1.0, 0.82, 0.58], 2.8, [0.32, 0.4, 0.6], [0.32, 0.27, 0.17], 0.27, 0.4,
+      [1.0, 0.82, 0.58], 2.8, [0.46, 0.4, 0.36], [0.34, 0.28, 0.18], 1.2, 0.4,
       [0.76, 0.66, 0.56]),
   key(0.78, [0.07, 0.16, 0.4], [0.8, 0.42, 0.2], [0.13, 0.11, 0.09],
-      [1.0, 0.6, 0.32], 1.35, [0.2, 0.24, 0.44], [0.14, 0.11, 0.08], 0.28, 0.4,
+      [1.0, 0.6, 0.32], 1.35, [0.5, 0.3, 0.22], [0.2, 0.13, 0.09], 1.243, 0.4,
       [0.6, 0.42, 0.32]),
   key(0.83, [0.045, 0.1, 0.28], [0.6, 0.3, 0.2], [0.07, 0.06, 0.055],
-      [0.95, 0.5, 0.3], 0.8, [0.15, 0.17, 0.34], [0.09, 0.07, 0.06], 0.26, 0.3,
+      [0.95, 0.5, 0.3], 0.8, [0.38, 0.23, 0.2], [0.13, 0.09, 0.07], 1.154, 0.3,
       [0.42, 0.26, 0.24]),
   key(0.86, [0.02, 0.05, 0.15], [0.26, 0.16, 0.18], [0.03, 0.03, 0.04],
-      [0.7, 0.42, 0.4], 0.4, [0.1, 0.12, 0.24], [0.05, 0.045, 0.05], 0.22, 0.2,
+      [0.7, 0.42, 0.4], 0.4, [0.18, 0.14, 0.22], [0.06, 0.05, 0.05], 0.977, 0.2,
       [0.18, 0.14, 0.17]),
   key(0.93, [0.008, 0.015, 0.04], [0.05, 0.06, 0.12], [0.014, 0.016, 0.024],
-      [0.35, 0.42, 0.68], 0.14, [0.09, 0.12, 0.25], [0.052, 0.054, 0.064], 0.34, 0.15,
+      [0.35, 0.42, 0.68], 0.14, [0.09, 0.12, 0.25], [0.052, 0.054, 0.064], 1.51, 0.15,
       [0.05, 0.06, 0.12]),
   key(1.0, [0.006, 0.011, 0.032], [0.03, 0.05, 0.1], [0.012, 0.014, 0.02],
-      [0.3, 0.4, 0.68], 0.1, [0.08, 0.11, 0.24], [0.05, 0.052, 0.062], 0.34, 0.14,
+      [0.3, 0.4, 0.68], 0.1, [0.08, 0.11, 0.24], [0.05, 0.052, 0.062], 1.51, 0.14,
       [0.035, 0.05, 0.1]),
 ];
 
@@ -136,11 +141,23 @@ const SUN_DISTANCE = 55;
 /** Half-width of the sun's shadow frustum. The venue's outer radius is 22.7. */
 const SHADOW_EXTENT = 25;
 /**
- * Seconds between sky-dome and IBL rebuilds. Each rebuild is a PMREM pass plus
- * a render-target reallocation, so this is the difference between a cycle that
- * costs nothing and one that dominates the frame.
+ * The one-time IBL bake: a neutral daylight gradient, not the sky at whatever
+ * hour the app happened to start.
+ *
+ * This is only ever seen as a REFLECTION - in the chrome mark, the steel, the
+ * water. Its intensity tracks the cycle so those surfaces still darken at
+ * night, but baking a sunset into it would leave the monument reflecting an
+ * orange sky at noon.
  */
-const ENVIRONMENT_INTERVAL = 0.5;
+const NEUTRAL_IBL = {
+  // Near-achromatic, deliberately. This is a constant now, so any colour in it
+  // is a colour the scene wears at EVERY hour: a blue-sky version of it left
+  // the ground cold and green at sunset while the sky above it burned orange.
+  // All the colour in the ambient comes from the hemisphere light instead.
+  sky: [0.34, 0.36, 0.41] as Rgb,
+  equator: [0.46, 0.46, 0.46] as Rgb,
+  ground: [0.3, 0.29, 0.27] as Rgb,
+};
 const MAX_ELEVATION = (72 * Math.PI) / 180;
 
 export class DayNightSystem extends createSystem(
@@ -179,8 +196,8 @@ export class DayNightSystem extends createSystem(
   };
   private fogColor!: Color;
   private sun!: DirectionalLight;
-  /** Seconds since the sky dome and the IBL were last rebuilt. */
-  private envAge = Number.POSITIVE_INFINITY;
+  /** The IBL is baked once; after that only its intensity moves. */
+  private iblPrimed = false;
   private sunIntensity = 0;
   private hemiIntensity = 0;
   private iblIntensity = 0;
@@ -239,8 +256,6 @@ export class DayNightSystem extends createSystem(
   }
 
   update(delta: number): void {
-    this.envAge += delta;
-
     if (this.frozen) {
       this.sample(this.t);
       this.applySky();
@@ -298,21 +313,9 @@ export class DayNightSystem extends createSystem(
   }
 
   private applySky(): void {
-    // Raising _needsUpdate on IBLGradient makes EnvironmentSystem run a full
-    // PMREM convolution, then dispose the old render target and allocate a new
-    // one and reassign scene.environment - which rebinds the env map on every
-    // material in the scene. Doing that once per frame was costing far more
-    // than everything else in this system put together, and on a headset it was
-    // the single largest reason the frame budget was blown.
-    //
-    // A full cycle takes 110 s in the browser and 300 s in a session, so the
-    // sky moves imperceptibly between rebuilds at this rate. Lights, fog and
-    // the backdrop tint still update every frame, so nothing visibly steps.
-    const rebuildEnvironment = this.envAge >= ENVIRONMENT_INTERVAL;
-    if (rebuildEnvironment) {
-      this.envAge = 0;
-    }
-
+    // The background dome updates EVERY frame, and costs nothing to do so:
+    // EnvironmentSystem's dome path only writes uniforms on the dome mesh's
+    // material. That is what keeps the sky transition smooth.
     for (const entity of this.queries.domes.entities) {
       const sky = entity.getVectorView(DomeGradient, 'sky');
       const equator = entity.getVectorView(DomeGradient, 'equator');
@@ -321,9 +324,7 @@ export class DayNightSystem extends createSystem(
       equator.set(this.blend.skyHorizon, 0);
       ground.set(this.blend.ground, 0);
       // Environment props are ignored unless the dirty flag is raised.
-      if (rebuildEnvironment) {
-        entity.setValue(DomeGradient, '_needsUpdate', true);
-      }
+      entity.setValue(DomeGradient, '_needsUpdate', true);
     }
 
     const fog = this.world.scene.fog;
@@ -346,15 +347,33 @@ export class DayNightSystem extends createSystem(
     // receive tracks the sky instead of contradicting it after sunset.
     this.applyBackdrop();
 
-    if (!rebuildEnvironment) {
+    // The IBL is baked exactly once.
+    //
+    // Raising _needsUpdate on IBLGradient makes EnvironmentSystem run a full
+    // PMREM convolution, dispose the old render target, allocate a new one and
+    // reassign scene.environment - which rebinds the env map on every material
+    // in the scene. There is no way to animate a gradient IBL without paying
+    // that, so it does not get animated: the ambient that has to move with the
+    // sun is analytic instead (the hemisphere light below), and all that
+    // remains here is a scalar.
+    //
+    // scene.environmentIntensity is a plain uniform, so reflections still fade
+    // out at dusk and come back at dawn for free.
+    // A modest fill, not the main ambient. This term is a CONSTANT grey now, so
+    // whatever weight it carries is weight that cannot change colour with the
+    // sun - at 2.2 it swamped the hemisphere and left the ground grey under an
+    // orange sunset. It is here to give metal and water something to reflect.
+    this.world.scene.environmentIntensity = this.iblIntensity * 0.85;
+    if (this.iblPrimed) {
       return;
     }
     for (const entity of this.queries.ibls.entities) {
-      entity.getVectorView(IBLGradient, 'sky').set(this.blend.skyTop, 0);
-      entity.getVectorView(IBLGradient, 'equator').set(this.blend.skyHorizon, 0);
-      entity.getVectorView(IBLGradient, 'ground').set(this.blend.ground, 0);
-      entity.setValue(IBLGradient, 'intensity', this.iblIntensity * 2.2);
+      entity.getVectorView(IBLGradient, 'sky').set(NEUTRAL_IBL.sky, 0);
+      entity.getVectorView(IBLGradient, 'equator').set(NEUTRAL_IBL.equator, 0);
+      entity.getVectorView(IBLGradient, 'ground').set(NEUTRAL_IBL.ground, 0);
+      entity.setValue(IBLGradient, 'intensity', 1);
       entity.setValue(IBLGradient, '_needsUpdate', true);
+      this.iblPrimed = true;
     }
   }
 
