@@ -110,7 +110,8 @@
         "public/wood-planks-03_normal.png": "public/texture/wood-planks-03_normal.png",
         "public/wood-planks-03_roughness.png": "public/texture/wood-planks-03_roughness.png"
       }
-    }
+    },
+    "rock-stone-wall-02": "1.0.1"
   },
   "version": "0.1.0",
   "type": "module",

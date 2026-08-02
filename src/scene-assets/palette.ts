@@ -11,7 +11,10 @@
  */
 
 import {
+  BufferGeometry,
   DoubleSide,
+  Mesh,
+  Object3D,
   ExtrudeGeometry,
   MeshBasicMaterial,
   MeshPhysicalMaterial,
@@ -25,6 +28,7 @@ import {
   GROUND_TILES,
   METAL_PLATES,
   PLASTER,
+  ROCK,
   TIMBER,
   pbrMaps,
   pbrMapsXY,
@@ -32,17 +36,38 @@ import {
 } from './textures.js';
 import { flameTexture } from './flame-texture.js';
 
-/** Site geometry, shared by assets, scene composition and systems. */
+/**
+ * Site geometry, shared by assets, scene composition and systems.
+ *
+ * The plan is a rounded triangle. Each corner carries a circle of
+ * `cornerCircleRadius`, and the edge paths are placed so their OUTER edge is
+ * tangent to both circles they run between — which makes the outer silhouette
+ * arc, straight, arc, with no concave junction anywhere.
+ *
+ * That tangency fixes the edge offset: outer edge sits at
+ * `inradius + cornerCircleRadius`, so the centreline is pushed out from the
+ * corner-to-corner line by `cornerCircleRadius - edgeWidth / 2`.
+ */
 export const SITE = {
-  /** Equilateral triangle, 24 m sides -> circumradius 24/sqrt(3). */
-  sideLength: 24,
-  cornerRadius: 13.856,
+  cornerRadius: 16.5,
+  inradius: 8.25,
+  cornerCircleRadius: 6.2,
+  edgeWidth: 2.8,
+  bridgeWidth: 2.9,
   corners: {
-    entrance: [0, 13.856] as const,
-    stage: [12, -6.928] as const,
-    firepit: [-12, -6.928] as const,
+    entrance: [0, 16.5] as const,
+    stage: [14.289, -8.25] as const,
+    firepit: [-14.289, -8.25] as const,
   },
-  groundRadius: 28,
+  /** Raised platform the pavilion stands on, ringed by the moat. */
+  islandRadius: 7.2,
+  /** Outer lip of the moat. Deliberately lands under the edge paths. */
+  moatOuterRadius: 13.0,
+  deckTop: 0.06,
+  deckThickness: 0.3,
+  moatWaterY: -0.5,
+  moatBedY: -1.15,
+  groundRadius: 46,
   pavilionRoofRadius: 6,
 } as const;
 
@@ -212,6 +237,33 @@ export const outerTerrain = new MeshStandardMaterial({
   roughness: 0.94,
   metalness: 0,
   ...surfaceMaps(DESERT_GROUND, 44),
+});
+
+/** Moat bed and revetment. */
+export const moatRock = new MeshStandardMaterial({
+  // Warm and mid-toned, not grey. This is only ever seen THROUGH water: a cool
+  // grey bed read back through a blue surface as flat slate, and a very dark one
+  // turned the moat into a hole. A sandy rock under a blue surface is what makes
+  // shallow water look shallow.
+  color: '#96866b',
+  roughness: 0.92,
+  metalness: 0,
+  ...pbrMaps(ROCK, 7),
+});
+
+export const moatRockWall = new MeshStandardMaterial({
+  color: '#7b7161',
+  roughness: 0.9,
+  metalness: 0,
+  side: DoubleSide,
+  ...pbrMaps(ROCK, 4),
+});
+
+/** Structural underside of decks and bridges, seen across the moat. */
+export const deckStructure = new MeshStandardMaterial({
+  color: '#5d5a55',
+  roughness: 0.78,
+  metalness: 0.12,
 });
 
 /** The beach slope down to the waterline; slightly damper and darker. */
@@ -471,6 +523,34 @@ export const trunk = new MeshStandardMaterial({
 /* ----------------------------------------------------------------- geometry ops */
 
 /**
+ * Give a non-indexed geometry a trivial sequential index.
+ *
+ * ExtrudeGeometry emits non-indexed geometry; every primitive constructor
+ * (Box, Cylinder, Ring, Torus, Circle, Plane, Tube) emits indexed geometry.
+ * LocomotionEnvironment merges everything under its node with
+ * BufferGeometryUtils.mergeGeometries, which refuses a batch whose members
+ * disagree about the index - so a single extruded wall inside a group silently
+ * cost that whole node its collision, logging only to the console.
+ *
+ * This does not weld vertices; it just makes the two kinds mergeable. Welding
+ * would need BufferGeometryUtils.mergeVertices and would change the normals
+ * that were computed for the extrusion.
+ */
+function withIndex<T extends BufferGeometry>(geometry: T): T {
+  if (geometry.getIndex() !== null) {
+    return geometry;
+  }
+  const count = geometry.attributes.position.count;
+  const index = new Array<number>(count);
+  for (let i = 0; i < count; i += 1) {
+    index[i] = i;
+  }
+  // A plain array: setIndex picks the right typed array for the vertex count.
+  geometry.setIndex(index);
+  return geometry;
+}
+
+/**
  * A slab with filleted edges on every axis — the Horizon rounded-mass primitive.
  * Centered on the origin, `depth` runs along local Z.
  */
@@ -506,7 +586,7 @@ export function roundedSlabGeometry(
   });
   geometry.translate(0, 0, -extrudeDepth / 2);
   geometry.computeVertexNormals();
-  return geometry;
+  return withIndex(geometry);
 }
 
 /**
@@ -547,14 +627,18 @@ export function arcWallGeometry(
   geometry.rotateX(-Math.PI / 2);
   geometry.translate(0, -height / 2, 0);
   geometry.computeVertexNormals();
-  return geometry;
+  return withIndex(geometry);
 }
 
 /**
  * A pointed leaf blade in the XY plane, stem at the origin, tip at +Y.
  * Thin extrusion so it reads from both faces with a two-sided material.
  */
-export function leafGeometry(length: number, width: number): ExtrudeGeometry {
+export function leafGeometry(
+  length: number,
+  width: number,
+  curveSegments = 10,
+): ExtrudeGeometry {
   const shape = new Shape();
   shape.moveTo(0, 0);
   shape.quadraticCurveTo(width / 2, length * 0.38, 0, length);
@@ -562,10 +646,56 @@ export function leafGeometry(length: number, width: number): ExtrudeGeometry {
   const geometry = new ExtrudeGeometry(shape, {
     depth: 0.014,
     bevelEnabled: false,
-    curveSegments: 10,
+    curveSegments,
   });
   geometry.computeVertexNormals();
-  return geometry;
+  return withIndex(geometry);
+}
+
+
+/* --------------------------------------------------------------------- shadows */
+
+/**
+ * Names that must never cast: emissive fittings, flames and glass lenses.
+ * An LED strip lying on a deck casting a shadow of itself onto that deck is
+ * pure cost, and it reads as dirt rather than as light.
+ */
+const NON_CASTING = /light|led|lens|flame|ember|glow|screen|slide|panel/i;
+
+/**
+ * Shadow flags for a solid prop: casts and receives.
+ *
+ * The renderer's shadow map and the sun's castShadow were both on while every
+ * mesh in the project still had Three's defaults - castShadow and receiveShadow
+ * both false. The map was rendered every frame and sampled by nothing, which is
+ * why the site looked uniformly flat at every hour and why turning shadows off
+ * changed nothing at all.
+ *
+ * Flags belong on the PROTOTYPE. Every placement is a hierarchy clone, so doing
+ * it once here covers all of them, and it cannot drift out of sync with the
+ * scene the way a post-load traversal would.
+ */
+export function shadowProp<T extends Object3D>(root: T): T {
+  root.traverse((node) => {
+    const mesh = node as Mesh;
+    if (mesh.isMesh !== true || NON_CASTING.test(mesh.name)) {
+      return;
+    }
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
+  });
+  return root;
+}
+
+/** Ground and decks: they take shadows, they do not throw them. */
+export function shadowReceiver<T extends Object3D>(root: T): T {
+  root.traverse((node) => {
+    const mesh = node as Mesh;
+    if (mesh.isMesh === true) {
+      mesh.receiveShadow = true;
+    }
+  });
+  return root;
 }
 
 /** Yaw (radians) that points local -Z at the origin from position (x, z). */

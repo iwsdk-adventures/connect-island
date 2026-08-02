@@ -26,6 +26,7 @@ import {
   iridescentChrome,
   ledCyan,
   polishedSteel,
+  shadowProp,
   timberWall,
 } from './palette.js';
 import { MetaMarkCurve } from './meta-mark.js';
@@ -134,4 +135,4 @@ loop.position.y = LOOP_CENTRE_Y;
 loop.name = 'InfinityLoop';
 monument.add(loop);
 
-export default monument;
+export default shadowProp(monument);

@@ -12,6 +12,7 @@ import {
   creamShell,
   ledBlue,
   roundedSlabGeometry,
+  shadowProp,
   timberDark,
 } from './palette.js';
 
@@ -61,4 +62,4 @@ for (const side of [-1, 1]) {
   gate.add(coping);
 }
 
-export default gate;
+export default shadowProp(gate);

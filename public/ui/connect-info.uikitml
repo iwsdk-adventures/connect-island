@@ -21,8 +21,10 @@
 
   .card {
     flex-direction: column;
+    justify-content: space-between;
     font-family: "DM Sans";
     width: 420px;
+    height: 500px;
     background-color: #0a1f4d;
     border-radius: 24px;
     border-width: 2px;

@@ -18,9 +18,22 @@
  * The fresnel term driving alpha is Flowerbed's: the water is near-transparent
  * looking straight down and opaque at grazing angles, which is what stops it
  * reading as a flat blue sheet.
+ *
+ * That transparency is why there is a sea floor here as well. In Flowerbed the
+ * water always lies over terrain; open sea has nothing under it, so at the
+ * angles you actually look at it from - down and out, over the near water - a
+ * 28%-opaque surface was compositing against empty sky-dome and reading as a
+ * flat slate mass. The floor is one unlit disc a few metres down that gives the
+ * water something to be transparent ONTO.
  */
 
-import { CircleGeometry, Mesh, MeshPhysicalMaterial } from '@iwsdk/core';
+import {
+  CircleGeometry,
+  Group,
+  Mesh,
+  MeshBasicMaterial,
+  MeshPhysicalMaterial,
+} from '@iwsdk/core';
 import { voronoiNormalMap } from './water-texture.js';
 
 /** Driven by WaterSystem; shared with the compiled shader. */
@@ -59,7 +72,7 @@ const WATER_FRESNEL_CHUNK = /* glsl */ `
     dot( reflectedLight.indirectSpecular, vec3( 0.21, 0.72, 0.07 ) );
 
   // Highlights stay fully opaque regardless of the fresnel term.
-  diffuseColor.a = clamp( max( fresnel, specLuminance ), 0.28, 1.0 );
+  diffuseColor.a = clamp( max( fresnel, specLuminance ), 0.42, 1.0 );
 `;
 
 /** Exposed so DayNightSystem can tint it with the sky. */
@@ -100,9 +113,29 @@ waterMaterial.onBeforeCompile = (shader) => {
     .replace('#include <lights_fragment_end>', WATER_FRESNEL_CHUNK);
 };
 
+/**
+ * What the near water is seen against. Unlit and un-fogged, tinted by the cycle
+ * alongside the ridges: a lit material here would need its own normal and would
+ * only ever be glimpsed through water, so it would cost more and read no better.
+ */
+export const seaFloorMaterial = new MeshBasicMaterial({
+  color: '#123243',
+  fog: false,
+});
+
+const sea = new Group();
+sea.name = 'Sea';
+
+const floor = new Mesh(new CircleGeometry(880, 64), seaFloorMaterial);
+floor.rotation.x = -Math.PI / 2;
+floor.position.y = -3.4;
+floor.name = 'Sea floor';
+sea.add(floor);
+
 const water = new Mesh(new CircleGeometry(880, 96), waterMaterial);
 water.rotation.x = -Math.PI / 2;
 water.name = 'Water';
 water.renderOrder = -1;
+sea.add(water);
 
-export default water;
+export default sea;

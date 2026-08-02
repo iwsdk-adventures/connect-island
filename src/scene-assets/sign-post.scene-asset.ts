@@ -9,7 +9,13 @@
  */
 
 import { CylinderGeometry, Group, Mesh } from '@iwsdk/core';
-import { brushedChrome, graphite, roundedSlabGeometry, timberDark } from './palette.js';
+import {
+  brushedChrome,
+  graphite,
+  roundedSlabGeometry,
+  shadowProp,
+  timberDark,
+} from './palette.js';
 
 const PANEL_W = 3.3;
 const PANEL_H = 1.75;
@@ -44,4 +50,4 @@ board.position.set(0, PANEL_CENTRE_Y, 0);
 board.name = 'Sign board';
 signPost.add(board);
 
-export default signPost;
+export default shadowProp(signPost);

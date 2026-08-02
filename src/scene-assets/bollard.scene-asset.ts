@@ -7,7 +7,13 @@
  */
 
 import { CylinderGeometry, Group, Mesh } from '@iwsdk/core';
-import { brushedChrome, ledWarm, roundedSlabGeometry, timberDark } from './palette.js';
+import {
+  brushedChrome,
+  ledWarm,
+  roundedSlabGeometry,
+  shadowProp,
+  timberDark,
+} from './palette.js';
 
 const HEIGHT = 0.86;
 
@@ -35,4 +41,4 @@ cap.position.y = 0.05 + HEIGHT + 0.01;
 cap.name = 'Bollard cap';
 bollard.add(cap);
 
-export default bollard;
+export default shadowProp(bollard);

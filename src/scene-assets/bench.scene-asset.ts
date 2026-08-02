@@ -4,7 +4,12 @@
  */
 
 import { Group, Mesh } from '@iwsdk/core';
-import { creamShell, roundedSlabGeometry, timberFine } from './palette.js';
+import {
+  creamShell,
+  roundedSlabGeometry,
+  shadowProp,
+  timberFine,
+} from './palette.js';
 
 const bench = new Group();
 bench.name = 'Bench';
@@ -28,4 +33,4 @@ for (const x of [-0.95, 0.95]) {
   bench.add(support);
 }
 
-export default bench;
+export default shadowProp(bench);

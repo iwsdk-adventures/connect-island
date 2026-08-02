@@ -7,10 +7,24 @@
  *
  * `?t=0.35` on the URL does the same thing at runtime without a rebuild.
  */
-export const DEBUG_TIME_OF_DAY: number | null = null;
+export const DEBUG_TIME_OF_DAY: number | null = 0.42;
+
+/**
+ * The frozen time actually in force, URL first.
+ *
+ * `?t=` has to win over the constant, otherwise sampling the cycle means an
+ * edit and a rebuild per sample. Returns null when the cycle should just run.
+ */
+export function frozenTimeOfDay(): number | null {
+  const search = globalThis.location?.search ?? '';
+  const fromUrl = new URLSearchParams(search).get('t');
+  const requested =
+    fromUrl !== null && fromUrl !== '' ? Number(fromUrl) : DEBUG_TIME_OF_DAY;
+  return requested !== null && Number.isFinite(requested) ? requested : null;
+}
 
 /** Fixed pose used while a debug time is set: shows ground, water and skyline. */
 // Tuned against the runtime's portrait canvas, not the wide editor preview:
 // a pose framed for 1200x720 leaves the site in a thin band at 720x800.
-export const DEBUG_REVIEW_EYE: readonly [number, number, number] = [15, 8, 22];
-export const DEBUG_REVIEW_TARGET: readonly [number, number, number] = [-2, 2.2, -1];
+export const DEBUG_REVIEW_EYE: readonly [number, number, number] = [21, 9, 27];
+export const DEBUG_REVIEW_TARGET: readonly [number, number, number] = [-1, 1.4, -1];

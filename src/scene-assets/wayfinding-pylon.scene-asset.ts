@@ -14,6 +14,7 @@ import {
   graphite,
   ledBlue,
   roundedSlabGeometry,
+  shadowProp,
 } from './palette.js';
 
 const HEIGHT = 3.3;
@@ -57,4 +58,4 @@ crown.position.y = 0.16 + HEIGHT + 0.03;
 crown.name = 'Pylon crown';
 pylon.add(crown);
 
-export default pylon;
+export default shadowProp(pylon);

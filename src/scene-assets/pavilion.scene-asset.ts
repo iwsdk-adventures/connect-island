@@ -20,14 +20,14 @@ import {
   Vector2,
 } from '@iwsdk/core';
 import {
+  arcWallGeometry,
   brandBlueGlow,
   brandDeepBlue,
   brandVioletTwoSided,
   brushedChrome,
   creamLight,
-  creamShade,
   creamLightTwoSided,
-  arcWallGeometry,
+  creamShade,
   creamShell,
   glassPanel,
   graphite,
@@ -35,10 +35,11 @@ import {
   ledCyan,
   ledWarm,
   polishedSteel,
+  shadowProp,
   timberDark,
   timberDarkTwoSided,
-  timberWall,
   timberDeck,
+  timberWall,
 } from './palette.js';
 
 const DECK_TOP = 0.3;
@@ -283,9 +284,12 @@ const wallGeometry = arcWallGeometry(
   -0.55,
   1.1,
 );
+// Rotated a half-turn from the approach bearings, so each bridge arrives at an
+// OPENING and faces the inside of the wall opposite. The panels then hang on
+// the inner faces, which is what gives a visitor a reason to walk in.
 for (let i = 0; i < 3; i += 1) {
   const wall = new Mesh(wallGeometry, timberWall);
-  wall.rotation.y = (i / 3) * Math.PI * 2;
+  wall.rotation.y = (i / 3) * Math.PI * 2 + Math.PI;
   wall.position.y = DECK_TOP + 1.35;
   wall.name = `Info wall ${i}`;
   pavilion.add(wall);
@@ -293,17 +297,17 @@ for (let i = 0; i < 3; i += 1) {
   const cap = new Mesh(new TorusGeometry(WALL_RADIUS, 0.07, 8, 36, 1.1), brandBlueGlow);
   // Torus arcs in XY from +X; lay it flat and align with the wall segment.
   cap.rotation.set(-Math.PI / 2, 0, 0);
-  cap.rotation.z = -0.55 + Math.PI / 2 - (i / 3) * Math.PI * 2;
+  cap.rotation.z = -0.55 + Math.PI / 2 - ((i / 3) * Math.PI * 2 + Math.PI);
   cap.position.y = DECK_TOP + 2.7;
   cap.name = `Info wall cap ${i}`;
   pavilion.add(cap);
 
   const base = new Mesh(new TorusGeometry(WALL_RADIUS, 0.09, 8, 36, 1.1), brushedChrome);
   base.rotation.set(-Math.PI / 2, 0, 0);
-  base.rotation.z = -0.55 + Math.PI / 2 - (i / 3) * Math.PI * 2;
+  base.rotation.z = -0.55 + Math.PI / 2 - ((i / 3) * Math.PI * 2 + Math.PI);
   base.position.y = DECK_TOP + 0.06;
   base.name = `Info wall base ${i}`;
   pavilion.add(base);
 }
 
-export default pavilion;
+export default shadowProp(pavilion);

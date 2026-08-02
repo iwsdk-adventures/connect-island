@@ -28,6 +28,7 @@ import {
   ledCyan,
   ledViolet,
   roundedSlabGeometry,
+  shadowProp,
   timberDeck,
 } from './palette.js';
 
@@ -268,4 +269,4 @@ for (const side of [-1, 1]) {
   stage.add(monitor);
 }
 
-export default stage;
+export default shadowProp(stage);

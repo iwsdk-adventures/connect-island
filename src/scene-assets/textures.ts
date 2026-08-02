@@ -21,7 +21,10 @@ const textureUrl = (file: string): string =>
   `${import.meta.env.BASE_URL}texture/${file}`;
 
 /** Installed sets are a mix of .png and .webp, so the extension is per-set. */
-const EXT: Record<string, string> = { 'grass-02': 'webp' };
+const EXT: Record<string, string> = {
+  'grass-02': 'webp',
+  'rock-stone-wall-02': 'webp',
+};
 const extFor = (name: string): string => EXT[name] ?? 'png';
 
 function load(file: string, repeat: number, srgb: boolean): Texture {
@@ -125,3 +128,4 @@ export const METAL_PLATES = 'metal-plates-01';
 export const GROUND_TILES = 'ground-tiles-with-sand-01';
 export const PLASTER = 'plaster-wall-02';
 export const DESERT_GROUND = 'desert-ground-01';
+export const ROCK = 'rock-stone-wall-02';

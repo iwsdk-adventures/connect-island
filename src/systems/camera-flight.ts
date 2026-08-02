@@ -24,7 +24,7 @@ import {
 import {
   DEBUG_REVIEW_EYE,
   DEBUG_REVIEW_TARGET,
-  DEBUG_TIME_OF_DAY,
+  frozenTimeOfDay,
 } from '../debug-time.js';
 
 /** Eye positions, in world space, in tour order. */
@@ -111,7 +111,7 @@ export class CameraFlightSystem extends createSystem({}) {
     // only by time of day. This has to run every frame, not once in init:
     // releasing the rig hands the camera to the browser orbit controls, which
     // then drive it from the project config and ignore any one-shot placement.
-    if (DEBUG_TIME_OF_DAY !== null) {
+    if (frozenTimeOfDay() !== null) {
       this.world.player.position.set(...DEBUG_REVIEW_EYE);
       this.world.camera.position.set(0, 0, 0);
       this.world.camera.lookAt(...DEBUG_REVIEW_TARGET);

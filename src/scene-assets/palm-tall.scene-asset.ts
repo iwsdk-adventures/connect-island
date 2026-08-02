@@ -8,6 +8,7 @@
  */
 
 import { Group } from '@iwsdk/core';
+import { shadowProp } from './palette.js';
 import { createPalm } from './plants.js';
 
 const palm = new Group();
@@ -15,4 +16,4 @@ palm.name = 'Palm tall';
 
 palm.add(createPalm(3.9, 9));
 
-export default palm;
+export default shadowProp(palm);

@@ -30,6 +30,7 @@ import {
   graphite,
   ledCyan,
   ledWarm,
+  shadowProp,
   terracottaDeep,
   timberDeckWide,
 } from './palette.js';
@@ -153,4 +154,4 @@ SHEETS.forEach((sheet, index) => {
   flames.add(mesh);
 });
 
-export default firepit;
+export default shadowProp(firepit);

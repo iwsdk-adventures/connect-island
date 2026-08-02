@@ -19,6 +19,7 @@ import planterPalm from './scene-assets/planter-palm.scene-asset.js';
 import seatPod from './scene-assets/seat-pod.scene-asset.js';
 import signPost from './scene-assets/sign-post.scene-asset.js';
 import skyline from './scene-assets/skyline.scene-asset.js';
+import vegetation from './scene-assets/vegetation.scene-asset.js';
 import water from './scene-assets/water.scene-asset.js';
 import stage from './scene-assets/stage.scene-asset.js';
 import wayfindingPylon from './scene-assets/wayfinding-pylon.scene-asset.js';
@@ -43,6 +44,7 @@ export default defineAssets({
   'wayfinding-pylon': wayfindingPylon,
   'sign-post': signPost,
   skyline,
+  vegetation,
   water,
 
   // Spatial UI.

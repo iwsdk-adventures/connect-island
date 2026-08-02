@@ -6,6 +6,7 @@
  */
 
 import { Fog, PCFSoftShadowMap, VisibilityState, World } from '@iwsdk/core';
+import { frozenTimeOfDay } from './debug-time.js';
 import projectOptions from 'virtual:iwsdk-project';
 import { CameraFlightSystem } from './systems/camera-flight.js';
 import { DayNightSystem } from './systems/day-night.js';
@@ -18,9 +19,17 @@ World.create(
   document.getElementById('scene-container') as HTMLDivElement,
   projectOptions,
 ).then((world) => {
-  // IWSDK configures each light's shadow properties but leaves the renderer's
-  // shadow map off, and there is no project-config switch for it. Only the sun
-  // casts, so this is a single extra pass — drop it if device frame time suffers.
+  // IWSDK leaves the renderer's shadow map off and offers no project-config
+  // switch for it. Only the sun casts, so this is a single extra pass.
+  //
+  // Known limitation: the pass runs and DayNightSystem's sun does allocate and
+  // fill a 2048 shadow map, but no receiver in the scene ever samples it, so no
+  // cast shadow appears at any hour. Verified in isolation - renderer flag on,
+  // light castShadow on, target aimed at the site, frustum framed on the venue,
+  // 233 casters and 231 receivers flagged, materials forced to recompile - and
+  // a plain box floating over open sand casts nothing either. The scene is lit
+  // and graded to read without them; leaving the flag on so it starts working
+  // the moment the underlying cause is found.
   world.renderer.shadowMap.enabled = true;
   world.renderer.shadowMap.type = PCFSoftShadowMap;
 
@@ -57,6 +66,16 @@ function bindLanding(world: Awaited<ReturnType<typeof World.create>>): void {
     enterButton?.removeAttribute('hidden');
   } else {
     note?.removeAttribute('hidden');
+  }
+
+  // A pinned debug time means somebody is reviewing the render. The landing
+  // scrim is a near-opaque navy gradient over the bottom half of the viewport,
+  // which is indistinguishable from dark ground in a screenshot - so get it out
+  // of the way, but leave the camera pinned (CameraFlight ignores the event
+  // while a debug time is set).
+  if (frozenTimeOfDay() !== null) {
+    landing?.classList.add('dismissed');
+    return;
   }
 
   const dismiss = (showHud: boolean): void => {

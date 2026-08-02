@@ -17,12 +17,15 @@
  * light components consume — no sRGB conversion is involved anywhere here.
  */
 
-import { DEBUG_TIME_OF_DAY } from '../debug-time.js';
+import { frozenTimeOfDay } from '../debug-time.js';
 import { RIDGE_AERIAL, ridgeMaterials } from '../scene-assets/skyline.scene-asset.js';
-import { waterMaterial } from '../scene-assets/water.scene-asset.js';
+import {
+  seaFloorMaterial,
+  waterMaterial,
+} from '../scene-assets/water.scene-asset.js';
 import {
   Color,
-  DirectionalLightComponent,
+  DirectionalLight,
   DomeGradient,
   HemisphereLightComponent,
   IBLGradient,
@@ -94,16 +97,16 @@ const KEYS: DayKey[] = [
       [0.42, 0.32, 0.3]),
   // Mid-morning kept properly blue; interpolating straight from dawn to noon
   // passed through a dead neutral grey.
-  key(0.34, [0.1, 0.26, 0.58], [0.64, 0.72, 0.82], [0.24, 0.22, 0.18],
-      [1.0, 0.88, 0.72], 2.1, [0.32, 0.44, 0.7], [0.28, 0.24, 0.17], 0.28, 0.46,
+  key(0.34, [0.1, 0.26, 0.58], [0.64, 0.72, 0.82], [0.27, 0.25, 0.2],
+      [1.0, 0.88, 0.72], 2.7, [0.32, 0.44, 0.7], [0.31, 0.27, 0.19], 0.26, 0.4,
       [0.64, 0.7, 0.8]),
   // Noon. Sun, hemisphere and IBL are all pulled well down from the first pass,
   // where the combination clipped sand, paving and the cream walls to white.
-  key(0.5, [0.11, 0.3, 0.66], [0.68, 0.78, 0.88], [0.3, 0.28, 0.23],
-      [1.0, 0.96, 0.86], 2.5, [0.34, 0.46, 0.7], [0.32, 0.28, 0.2], 0.3, 0.52,
+  key(0.5, [0.11, 0.3, 0.66], [0.68, 0.78, 0.88], [0.34, 0.31, 0.25],
+      [1.0, 0.95, 0.83], 3.1, [0.34, 0.46, 0.7], [0.36, 0.31, 0.22], 0.26, 0.42,
       [0.68, 0.76, 0.86]),
-  key(0.66, [0.11, 0.25, 0.52], [0.78, 0.68, 0.58], [0.25, 0.22, 0.16],
-      [1.0, 0.82, 0.58], 2.2, [0.32, 0.4, 0.6], [0.3, 0.25, 0.16], 0.28, 0.46,
+  key(0.66, [0.11, 0.25, 0.52], [0.78, 0.68, 0.58], [0.27, 0.24, 0.17],
+      [1.0, 0.82, 0.58], 2.8, [0.32, 0.4, 0.6], [0.32, 0.27, 0.17], 0.27, 0.4,
       [0.76, 0.66, 0.56]),
   key(0.78, [0.07, 0.16, 0.4], [0.8, 0.42, 0.2], [0.13, 0.11, 0.09],
       [1.0, 0.6, 0.32], 1.35, [0.2, 0.24, 0.44], [0.14, 0.11, 0.08], 0.28, 0.4,
@@ -125,12 +128,13 @@ const KEYS: DayKey[] = [
 // Must stay inside the light's shadow-camera far plane (130). At 90 with a far
 // of 70 the whole scene sat behind the shadow frustum and nothing cast at all.
 const SUN_DISTANCE = 55;
+/** Half-width of the sun's shadow frustum. The venue's outer radius is 22.7. */
+const SHADOW_EXTENT = 25;
 const MAX_ELEVATION = (72 * Math.PI) / 180;
 
 export class DayNightSystem extends createSystem(
   {
     domes: { required: [DomeGradient] },
-    suns: { required: [DirectionalLightComponent] },
     hemis: { required: [HemisphereLightComponent] },
     ibls: { required: [IBLGradient] },
   },
@@ -163,6 +167,7 @@ export class DayNightSystem extends createSystem(
     fog: new Float32Array(3),
   };
   private fogColor!: Color;
+  private sun!: DirectionalLight;
   private sunIntensity = 0;
   private hemiIntensity = 0;
   private iblIntensity = 0;
@@ -172,13 +177,43 @@ export class DayNightSystem extends createSystem(
     this.t = this.config.timeOfDay.peek();
     this.fogColor = new Color();
 
+    // The key light is owned here rather than authored as a DirectionalLight
+    // component. IWSDK's light binding writes the Three light's matrixWorld
+    // directly and parks the shadow target from the node's quaternion, and the
+    // shadow map it allocated never produced a single shadow no matter how the
+    // node was aimed - a 2048 map rendered every frame and sampled by nothing.
+    // Owning the light means position, target and shadow frustum are set the
+    // way Three expects them, and it is one object either way.
+    this.sun = new DirectionalLight();
+    this.sun.name = 'Sun';
+    this.sun.castShadow = true;
+    this.sun.shadow.mapSize.set(2048, 2048);
+    this.sun.shadow.bias = -0.0004;
+    this.sun.shadow.normalBias = 0.028;
+    const shadowCamera = this.sun.shadow.camera;
+    shadowCamera.near = 1;
+    shadowCamera.far = SUN_DISTANCE * 2.4;
+    // Framed on the venue, not the whole island: the rounded triangle reaches
+    // 22.7 m, and every metre of slack past that costs shadow-map resolution.
+    shadowCamera.left = -SHADOW_EXTENT;
+    shadowCamera.right = SHADOW_EXTENT;
+    shadowCamera.top = SHADOW_EXTENT;
+    shadowCamera.bottom = -SHADOW_EXTENT;
+    shadowCamera.updateProjectionMatrix();
+    this.world.scene.add(this.sun);
+    // A DirectionalLight aims at its target's world position, so the target has
+    // to be in the graph for its matrix to be updated at all.
+    this.world.scene.add(this.sun.target);
+    this.cleanupFuncs.push(() => {
+      this.sun.removeFromParent();
+      this.sun.target.removeFromParent();
+      this.sun.dispose();
+    });
+
     // Debug affordance: ?t=0.35 freezes the clock at that point in the cycle so
     // the lighting can be reviewed at a fixed time. Without it the cycle runs.
-    const search = globalThis.location?.search ?? '';
-    const fromUrl = new URLSearchParams(search).get('t');
-    const requested =
-      DEBUG_TIME_OF_DAY ?? (fromUrl !== null ? Number(fromUrl) : null);
-    if (requested !== null && Number.isFinite(requested)) {
+    const requested = frozenTimeOfDay();
+    if (requested !== null) {
       this.t = ((requested % 1) + 1) % 1;
       this.frozen = true;
     }
@@ -322,6 +357,14 @@ export class DayNightSystem extends createSystem(
       0.21 * Math.max(day, 0.04) + hb * 0.3,
     );
     waterMaterial.envMapIntensity = 0.18 + Math.max(day, 0.04) * 0.34;
+
+    // The floor under the water: the same hue, well down in value, so depth
+    // reads as depth rather than as a second surface.
+    seaFloorMaterial.color.setRGB(
+      0.02 * Math.max(day, 0.05) + hr * 0.06,
+      0.07 * Math.max(day, 0.05) + hg * 0.07,
+      0.11 * Math.max(day, 0.05) + hb * 0.09,
+    );
   }
 
   private applyLights(): void {
@@ -334,22 +377,10 @@ export class DayNightSystem extends createSystem(
     const y = Math.sin(elevation) * SUN_DISTANCE;
     const z = cosE * Math.cos(azimuth) * SUN_DISTANCE;
 
-    for (const entity of this.queries.suns.entities) {
-      const object = entity.object3D;
-      if (object != null) {
-        object.position.set(x, Math.max(y, 2), z);
-        // Directional lights emit along local -Z, which is exactly what lookAt
-        // orients, so this needs no Euler bookkeeping.
-        object.lookAt(0, 0, 0);
-      }
-      const colour = entity.getVectorView(DirectionalLightComponent, 'color');
-      colour.set(this.blend.sun, 0);
-      entity.setValue(
-        DirectionalLightComponent,
-        'intensity',
-        Math.max(this.sunIntensity, 0),
-      );
-    }
+    this.sun.position.set(x, Math.max(y, 2), z);
+    this.sun.target.position.set(0, 0, 0);
+    this.sun.color.setRGB(this.blend.sun[0], this.blend.sun[1], this.blend.sun[2]);
+    this.sun.intensity = Math.max(this.sunIntensity, 0);
 
     for (const entity of this.queries.hemis.entities) {
       entity.getVectorView(HemisphereLightComponent, 'skyColor').set(this.blend.hemiSky, 0);

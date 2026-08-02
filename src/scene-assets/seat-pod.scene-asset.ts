@@ -13,6 +13,7 @@ import {
   fabricCushion,
   graphite,
   roundedSlabGeometry,
+  shadowProp,
   timberDark,
   timberFine,
 } from './palette.js';
@@ -76,4 +77,4 @@ backCushion.rotation.x = -0.2;
 backCushion.name = 'Back cushion';
 seatPod.add(backCushion);
 
-export default seatPod;
+export default shadowProp(seatPod);

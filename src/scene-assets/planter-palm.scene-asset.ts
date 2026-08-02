@@ -1,6 +1,7 @@
 /** Terracotta planter with a compact palm — pavilion and path dressing. */
 
 import { Group } from '@iwsdk/core';
+import { shadowProp } from './palette.js';
 import { createPalm, createPot } from './plants.js';
 
 const planter = new Group();
@@ -12,4 +13,4 @@ const palm = createPalm(1.9, 8);
 palm.position.y = 0.5;
 planter.add(palm);
 
-export default planter;
+export default shadowProp(planter);
